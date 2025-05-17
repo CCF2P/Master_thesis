@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Page</title>
+    <link rel="stylesheet" href="/Static/CSS/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Page</h1>
+        <form id="uploadForm" action="/upload/" method="post" enctype="multipart/form-data">
+            <input id="fileInput" type="file" name="user_images" multiple>
+            <button class="btn" type="submit">Upload</button>
+            <a class="btn" href="/">Go to Main Page</a>
+        </form>
+        <div id="progressBarContainer" style="display: none;">
+            <div id="progressBar"></div>
+        </div>
+        <div id="progressStatus"></div>
+    </div>
+    <script src="/app/static/upload.js"></script>
+</body>
+</html>
