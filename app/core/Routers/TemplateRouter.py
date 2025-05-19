@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 
