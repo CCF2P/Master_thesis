@@ -3,8 +3,6 @@ from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 
-from .NeuralNetworkModel import test
-
 # Build path to "Templates" folder from OS root folder
 template_path = os.path.join(os.path.dirname(__file__), "Templates")
 # Creating an environment with FileSystemLoader to collect relative

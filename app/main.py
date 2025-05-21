@@ -3,14 +3,14 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from AppCore.TemplateRouter import template_router
+from Routers.TemplateRouter import template_router
 
 app = FastAPI()
 # Build a path to the "Static" folder from the root folder of the OS +
 # a path relative to the current script
 path = os.path.join(
     os.path.dirname(__file__),
-    "AppCore/Templates/Static"
+    "Routers/Templates/Static"
 )
 # Mount a sub-application into a FastAPI application.
 # In this case, the sub-application that is mounted
