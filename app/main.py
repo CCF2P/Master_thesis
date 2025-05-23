@@ -1,9 +1,11 @@
-import uvicorn
 import os
+import uvicorn
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from Routers.TemplateRouter import template_router
+from Routers.MainRouter import main_router
+from Routers.DatabaseRouter import database_router
 
 app = FastAPI()
 # Build a path to the "Static" folder from the root folder of the OS +
@@ -21,7 +23,8 @@ app.mount(
     "static"
 )
 # Include created routers
-app.include_router(template_router)
+app.include_router(main_router)
+app.include_router(database_router)
 
 if __name__ == "__main__":
     uvicorn.run(

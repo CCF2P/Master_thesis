@@ -1,12 +1,21 @@
-from pydantic import BaseModel
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import (
+    Column,
+    Integer,
+    String
+)
 
-class FeatureCreate(BaseModel):
-    feature: dict
-    identifier: str
+# Create a DeclarativeMeta instance
+class Base (DeclarativeBase):
+    pass
 
-class Feature(BaseModel):
-    feature: float
-    identifier: str
 
-class Config:
-    from_attributes = True
+class TestTable(Base):
+    __tablename__ = "test"
+    id = Column(
+        Integer,
+        nullable=False,
+        primary_key=True,
+        autoincrement=True
+    )
+    msg = Column(String(40))

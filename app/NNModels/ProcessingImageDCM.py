@@ -2,6 +2,7 @@ from io import BytesIO
 
 from Databases.Schema import Feature
 
+
 def compare_image_by_features(features, model, database):
     # all_features = database.query(Feature).all()
     return True
