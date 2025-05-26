@@ -9,16 +9,18 @@
 <body>
     <div class="container">
         <h1>Upload Page</h1>
+        <p>{{ error_message }}</p>
         <form id="uploadForm" action="/upload/" method="post" enctype="multipart/form-data">
             <input id="fileInput" type="file" name="user_images" multiple>
             <button class="btn" type="submit">Upload</button>
-            <a class="btn" href="/">Go to Main Page</a>
+            <a class="btn" href="/">Go to main page</a>
         </form>
         <div id="progressBarContainer" style="display: none;">
             <div id="progressBar"></div>
         </div>
         <div id="progressStatus"></div>
     </div>
+
     <script src="/Static/JS/upload.js"></script>
 </body>
 </html>
