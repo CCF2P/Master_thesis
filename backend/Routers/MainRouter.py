@@ -42,10 +42,7 @@ async def get_index_html(request: Request):
         try:
             return templates.TemplateResponse(
                 name="upload.html",
-                context={
-                    "request": request,
-                    "error_message": ""
-                }
+                context={"request": request}
             )
         except:
                 return templates.TemplateResponse(

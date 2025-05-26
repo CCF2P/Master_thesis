@@ -21,7 +21,7 @@ from Databases.Database import (
     get_feature_by_identifier
 )
 
-database_router = APIRouter(prefix="/test", tags=["Main routers"])
+database_router = APIRouter()
 
 
 '''@database_router.get("/")
@@ -31,6 +31,9 @@ async def test(db_session: AsyncSession = Depends(get_async_session)):
     return result.scalars().all()'''
 
 
+# /////////////////////////////////////////////////////
+# /////////////////// Post routers ////////////////////
+# /////////////////////////////////////////////////////
 @database_router.post(path="/upload/", summary="Upload page")
 def upload_files(
     request: Request,
@@ -38,19 +41,8 @@ def upload_files(
     #db_session: AsyncSession=Depends(get_async_session)
 ):
     for user_image in user_images:
-        print(user_image.filename)
         if not user_image.filename.endswith('.dcm'):
-            if "text/html" in request.headers.get("Accept"):
-                return templates.TemplateResponse(
-                    name="upload.html",
-                    context={
-                        "request": request,
-                        "error_message": "Only DICOM files are allowed!"
-                    },
-                    status_code=400
-                )
-            elif "application/json" in request.headers.get("Accept"):
-                raise HTTPException(
+            raise HTTPException(
                     status_code=400,
                     detail="Only DICOM files are allowed"
                 )
@@ -58,8 +50,12 @@ def upload_files(
         '''existing_feature = get_feature_by_identifier(
             identifier=user_image.filename,
             db_session=db_session
-        )'''
-        '''if not existing_feature:
+        )
+        if not existing_feature:
             features = compare.extract_features(user_image, vgg19_model)
             features = json.dumps(features.tolist())
-            db_feature = crud.create_feature(db, features, identifier=user_image.filename)'''
+            db_feature = crud.create_feature(
+                db,
+                features,
+                identifier=user_image.filename
+            )'''
