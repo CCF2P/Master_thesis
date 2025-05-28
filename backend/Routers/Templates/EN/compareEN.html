@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare Jaw X-Ray Images</title>
+  <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+</head>
+
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>ToothScan</h2>
+      <ul>
+        <li><a href="/en">Home</a></li>
+        <li><a href="/compareEN/" class="active">Compare Images</a></li>
+        <li><a href="features-extraction.html">Feature Extraction</a></li>
+      </ul>
+      <div class="dropup">
+        <button class="dropbtn">Language</button>
+        <div class="dropup-content">
+          <a href="/">RUS</a>
+          <a href="/en">ENG</a>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <h1>Compare Jaw X-Ray Images</h1>
+      </header>
+
+      <section>
+
+        <h2>Upload X-Ray Images for Comparison</h2>
+        <form id="double" action="/compareEN/" method="post" enctype="multipart/form-data">
+          <label for="image1">Select First Image:</label>
+          <input type="file" id="image1" name="image1">
+
+          <label for="image2">Select Second Image:</label>
+          <input type="file" id="image2" name="image2">
+
+          <input type="submit" value="Compare Images">
+        </form>
+
+        <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
+          <label for="fileInput_for_db">Select Image:</label>
+          <input id="fileInput_for_db" name="user_images" type="file" multiple>
+
+          <button class="btn" type="submit">Compare</button>
+        </form>
+        <div id="progressBarContainer" style="display: none;">
+          <div id="progressBar"></div>
+        </div>
+        <div id="progressStatus"></div>
+      </section>
+
+      <footer>
+        <p>&copy; 2023 Jaw X-Ray Processing Application.</p>
+      </footer>
+
+    </main>
+  </div>
+  <script src="/Static/JS/uploadFile.js"></script>
+</body>
+
+</html>

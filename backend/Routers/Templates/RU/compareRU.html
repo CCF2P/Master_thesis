@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сравнение рентгеновскими снимков челюстей</title>
+  <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+</head>
+
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>ToothScan</h2>
+      <ul>
+        <li><a href="/">Главная</a></li>
+        <li><a href="/compare/" class="active">Сравнение снимков</a></li>
+        <li><a href="features-extraction.html">Извлечение особенностей</a></li>
+      </ul>
+      <div class="dropup">
+        <button class="dropbtn">Язык</button>
+        <div class="dropup-content">
+          <a href="/">RUS</a>
+          <a href="/en">ENG</a>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <h1>Сравнение рентгеновскими снимков челюстей</h1>
+      </header>
+      <section>
+        <h2>Загрузите рентгеновские снимки для сравнения</h2>
+        <form action="#" method="POST">
+          <label for="image1">Выберите первый снимок:</label>
+          <input type="file" id="image1" name="image1" accept="image/*" required>
+
+          <label for="image2">Выберите второй снимок:</label>
+          <input type="file" id="image2" name="image2" accept="image/*" required>
+
+          <input type="submit" value="Сравнить снимки">
+        </form>
+      </section>
+      <footer>
+        <p>&copy; 2025 Приложение для обработки рентгеновских снимков челюсти.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+
+</html>

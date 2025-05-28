@@ -17,18 +17,42 @@ async def get_index_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
-                name="index.html",
+                name="/RU/indexRU.html",
                 context={'request': request}
             )
         except:
-                return templates.TemplateResponse(
-                    name="error.html",
-                    context={
-                        "request": request,
-                        "error_message": "Page is not found."
-                    },
-                    status_code=500
-                )
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Страница не найдена."
+                },
+                status_code=500
+            )
+    elif "application/json" in request.headers.get("Accept"):
+        return HTTPException(
+            detail="Страница не найдена.",
+            status_code=500
+        )
+    
+
+@main_router.get(path="/en", summary="Home page")
+async def get_index_html(request: Request):
+    if "text/html" in request.headers.get("Accept"):
+        try:
+            return templates.TemplateResponse(
+                name="/EN/indexEN.html",
+                context={'request': request}
+            )
+        except:
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Page is not found."
+                },
+                status_code=500
+            )
     elif "application/json" in request.headers.get("Accept"):
         return HTTPException(
             detail="Page is not found.",
@@ -36,23 +60,23 @@ async def get_index_html(request: Request):
         )
 
 
-@main_router.get(path="/upload/", summary="Upload page")
+@main_router.get(path="/uploadEN/", summary="Upload page")
 async def get_index_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
-                name="upload.html",
+                name="EN/upload.html",
                 context={"request": request}
             )
         except:
-                return templates.TemplateResponse(
-                    name="error.html",
-                    context={
-                        "request": request,
-                        "error_message": "Page is not found."
-                    },
-                    status_code=500
-                )
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Page is not found."
+                },
+                status_code=500
+            )
     elif "application/json" in request.headers.get("Accept"):
             return HTTPException(
                 detail="Page is not found.",
@@ -60,24 +84,47 @@ async def get_index_html(request: Request):
             )
 
 
-@main_router.get(path="/compare/", summary="Compare page")
+@main_router.get(path="/compareRU/", summary="Compare page")
 async def get_index_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
-            print(request.headers.get("Accept"))
             return templates.TemplateResponse(
-                name="compare.html",
+                name="/RU/compareRU.html",
                 context={"request": request}
             )
         except:
-                return templates.TemplateResponse(
-                    name="error.html",
-                    context={
-                        "request": request,
-                        "error_message": "Page is not found."
-                    },
-                    status_code=500
-                )
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Страница не найдена"
+                },
+                status_code=500
+            )
+    elif "application/json" in request.headers.get("Accept"):
+        return HTTPException(
+            detail="Страница не найдена",
+            status_code=500
+        )
+
+
+@main_router.get(path="/compareEN/", summary="Compare page")
+async def get_index_html(request: Request):
+    if "text/html" in request.headers.get("Accept"):
+        try:
+            return templates.TemplateResponse(
+                name="/EN/compareEN.html",
+                context={"request": request}
+            )
+        except:
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Page is not found."
+                },
+                status_code=500
+            )
     elif "application/json" in request.headers.get("Accept"):
         return HTTPException(
             detail="Page is not found.",

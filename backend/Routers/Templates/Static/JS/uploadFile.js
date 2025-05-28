@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("uploadForm");
-  const fileInput = document.getElementById("fileInput");
+  const form = document.getElementById("uploadForm_for_db");
+  const fileInput = document.getElementById("fileInput_for_db");
   const progressBarContainer = document.getElementById("progressBarContainer");
   const progressBar = document.getElementById("progressBar");
   const progressStatus = document.getElementById("progressStatus");
@@ -28,16 +28,17 @@ document.addEventListener("DOMContentLoaded", () => {
         throw response.json();
       }
 
+      progressBar.style.backgroundColor = "#007bff";
       progressBar.style.width = "100%";
       progressStatus.textContent = "Upload complete!";
 
       // additional processing if necessary
       // const result = await response.json();
-      console.log("Server response:", response);
-
+      // console.log("Server response:", response);
     } catch (error) {
-      console.error("Upload failed:", error.keys);
-      progressStatus.textContent = "Upload failed!";
+      console.error("Upload failed:", error.then((value) => {
+        progressStatus.textContent = `Upload failed! ${value.detail}`
+      }));
       progressBar.style.backgroundColor = "#ff4444";
     }
   });

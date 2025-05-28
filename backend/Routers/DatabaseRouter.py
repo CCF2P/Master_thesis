@@ -34,7 +34,7 @@ async def test(db_session: AsyncSession = Depends(get_async_session)):
 # /////////////////////////////////////////////////////
 # /////////////////// Post routers ////////////////////
 # /////////////////////////////////////////////////////
-@database_router.post(path="/upload/", summary="Upload page")
+@database_router.post(path="/compareEN/", summary="Compare page")
 def upload_files(
     request: Request,
     user_images: List[UploadFile],
@@ -46,7 +46,7 @@ def upload_files(
                     status_code=400,
                     detail="Only DICOM files are allowed"
                 )
-        
+        print(user_image.filename)
         '''existing_feature = get_feature_by_identifier(
             identifier=user_image.filename,
             db_session=db_session
