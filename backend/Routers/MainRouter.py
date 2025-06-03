@@ -37,7 +37,7 @@ async def get_index_html(request: Request):
     
 
 @main_router.get(path="/en", summary="Home page")
-async def get_index_html(request: Request):
+async def get_indexEN_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
@@ -46,7 +46,7 @@ async def get_index_html(request: Request):
             )
         except:
             return templates.TemplateResponse(
-                name="error.html",
+                name="/EN/errorEN.html",
                 context={
                     "request": request,
                     "error_message": "Page is not found."
@@ -61,11 +61,11 @@ async def get_index_html(request: Request):
 
 
 @main_router.get(path="/uploadEN/", summary="Upload page")
-async def get_index_html(request: Request):
+async def get_uploadEN_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
-                name="EN/upload.html",
+                name="EN/uploadEN.html",
                 context={"request": request}
             )
         except:
@@ -85,7 +85,7 @@ async def get_index_html(request: Request):
 
 
 @main_router.get(path="/compareRU/", summary="Compare page")
-async def get_index_html(request: Request):
+async def get_compareRU_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
@@ -109,11 +109,35 @@ async def get_index_html(request: Request):
 
 
 @main_router.get(path="/compareEN/", summary="Compare page")
-async def get_index_html(request: Request):
+async def get_compareEN_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
             return templates.TemplateResponse(
                 name="/EN/compareEN.html",
+                context={"request": request}
+            )
+        except:
+            return templates.TemplateResponse(
+                name="error.html",
+                context={
+                    "request": request,
+                    "error_message": "Page is not found."
+                },
+                status_code=500
+            )
+    elif "application/json" in request.headers.get("Accept"):
+        return HTTPException(
+            detail="Page is not found.",
+            status_code=500
+        )
+
+
+@main_router.get(path="/resultEN/", summary="Result page")
+async def get_resultEN_html(request: Request):
+    if "text/html" in request.headers.get("Accept"):
+        try:
+            return templates.TemplateResponse(
+                name="/EN/resultEN.html",
                 context={"request": request}
             )
         except:

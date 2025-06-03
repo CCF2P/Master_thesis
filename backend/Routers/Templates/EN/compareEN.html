@@ -6,63 +6,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compare Jaw X-Ray Images</title>
   <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+  <link rel="stylesheet" href="/Static/CSS/CompareStyle.css">
 </head>
 
 <body>
   <div class="container">
+
     <aside class="sidebar">
-      <h2>ToothScan</h2>
+      <div class="sidebar-header">
+        <h2>
+          <img src="/Static/Pictures/jaw.png">
+          ToothScan
+        </h2>
+      </div>
+
       <ul>
-        <li><a href="/en">Home</a></li>
-        <li><a href="/compareEN/" class="active">Compare Images</a></li>
-        <li><a href="features-extraction.html">Feature Extraction</a></li>
+        <li>
+          <a href="/en">
+            <img src="/Static/Pictures/home.png"></img>
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="/compareEN/" class="active">
+            <img src="/Static/Pictures/compare.png"></img>
+            Compare Images
+          </a>
+        </li>
+        <li>
+          <a href="features-extraction.html">
+            <img src="/Static/Pictures/reduction.png"></img>
+            Feature Extraction
+          </a>
+        </li>
       </ul>
-      <div class="dropup">
-        <button class="dropbtn">Language</button>
-        <div class="dropup-content">
-          <a href="/">RUS</a>
-          <a href="/en">ENG</a>
+
+      <div class="language-selector">
+        <div class="dropup">
+          <button class="dropbtn">
+            <img src="/Static/Pictures/world.png"></img>
+            Language 
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropup-content">
+            <a href="/">RUS</a>
+            <a href="/en">ENG</a>
+          </div>
         </div>
       </div>
+
     </aside>
 
     <main>
-      <header>
+      <header class="mainHeader">
         <h1>Compare Jaw X-Ray Images</h1>
       </header>
 
       <section>
+        <h2>Upload X-Ray images for comparison</h2>
 
-        <h2>Upload X-Ray Images for Comparison</h2>
-        <form id="double" action="/compareEN/" method="post" enctype="multipart/form-data">
-          <label for="image1">Select First Image:</label>
-          <input type="file" id="image1" name="image1">
+        <div class="comparison-modes">
+          <!-- Mode 1: Compare two images -->
+          <div class="mode-card">
+            <div class="mode-header">Compare Two Images</div>
+            <div class="mode-content">
+              <form id="double" action="/compareEN/" method="post" enctype="multipart/form-data">
+                <!-- Контейнер для двух полей загрузки -->
+                <div class="dual-upload-container">
+                  <!-- Поле для первого изображения -->
+                  <div class="upload-item">
+                    <div class="upload-label">Upload First Image</div>
+                    <div class="upload-area" id="uploadArea1">
+                      <img src="/Static/Pictures/add-image.png"></img>
+                      <h3>First X-Ray Image</h3>
+                      <p>Drag & drop or click to select</p>
+                      <div class="file-info" id="fileInfo1">
+                        <span>No file selected</span>
+                      </div>
+                      <input type="file" id="image1" name="image1" style="display: none;">
+                    </div>
+                  </div>
+                  
+                  <!-- Поле для второго изображения -->
+                  <div class="upload-item">
+                    <div class="upload-label">Upload Second Image</div>
+                    <div class="upload-area" id="uploadArea2">
+                      <img src="/Static/Pictures/add-image.png"></img>
+                      <h3>Second X-Ray Image</h3>
+                      <p>Drag & drop or click to select</p>
+                      <div class="file-info" id="fileInfo2">
+                        <span>No file selected</span>
+                      </div>
+                      <input type="file" id="image2" name="image2" style="display: none;">
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="btn" type="submit">
+                  Compare Images
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Mode 2: Find matches in database -->
+          <div class="mode-card">
+            <div class="mode-header">Find Matches in Database</div>
+            <div class="mode-content">
+              <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
+                <div class="upload-area" id="dbUploadArea">
+                  <img src="/Static/Pictures/database.png"></img>
+                  <h3>Upload image to find matches</h3>
+                  <p>Drag & drop your image here or click to browse</p>
+                  <div class="file-info" id="fileInfoDb">
+                    <span>No file selected</span>
+                  </div>
+                  <input id="fileInput_for_db" name="user_images" type="file" multiple style="display: none;">
+                </div>
+                
+                <button class="btn btn-accent" type="submit">
+                  Find Matches
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
 
-          <label for="image2">Select Second Image:</label>
-          <input type="file" id="image2" name="image2">
-
-          <input type="submit" value="Compare Images">
-        </form>
-
-        <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
-          <label for="fileInput_for_db">Select Image:</label>
-          <input id="fileInput_for_db" name="user_images" type="file" multiple>
-
-          <button class="btn" type="submit">Compare</button>
-        </form>
+        <!-- Progress Bar -->
         <div id="progressBarContainer" style="display: none;">
           <div id="progressBar"></div>
         </div>
         <div id="progressStatus"></div>
+
       </section>
 
       <footer>
-        <p>&copy; 2023 Jaw X-Ray Processing Application.</p>
+        <div class="footer-content">
+          <div>
+            <h3>ToothScan</h3>
+          </div>
+          <p class="copyright">
+            &copy; 2025 Jaw X-Ray Processing Application. All rights reserved.
+          </p>
+        </div>
       </footer>
 
     </main>
   </div>
-  <script src="/Static/JS/uploadFile.js"></script>
+  <script src="/Static/JS/compare.js"></script>
 </body>
 
 </html>

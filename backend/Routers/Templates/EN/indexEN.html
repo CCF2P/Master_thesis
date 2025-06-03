@@ -6,40 +6,87 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jaw X-Ray Processing Application</title>
   <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+  <link rel="stylesheet" href="/Static/CSS/index.css">
 </head>
 
 <body>
   <div class="container">
+
     <aside class="sidebar">
-      <h2>ToothScan</h2>
+      <div class="sidebar-header">
+        <h2>
+          <img src="/Static/Pictures/jaw.png">
+          ToothScan
+        </h2>
+      </div>
+
       <ul>
-        <li><a href="/en" class="active">Home</a></li>
-        <li><a href="/compareEN/">Compare Images</a></li>
-        <li><a href="features-extraction.html">Feature Extraction</a></li>
+        <li>
+          <a href="/en" class="active">
+            <img src="/Static/Pictures/home.png"></img>
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="/compareEN/">
+            <img src="/Static/Pictures/compare.png"></img>
+            Compare Images
+          </a>
+        </li>
+        <li>
+          <a href="features-extraction.html">
+            <img src="/Static/Pictures/reduction.png"></img>
+            Feature Extraction
+          </a>
+        </li>
       </ul>
-      <div class="dropup">
-        <button class="dropbtn">Language</button>
-        <div class="dropup-content">
-          <a href="/">RUS</a>
-          <a href="/en">ENG</a>
+
+      <div class="language-selector">
+        <div class="dropup">
+          <button class="dropbtn">
+            <img src="/Static/Pictures/world.png"></img>
+            Language 
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropup-content">
+            <a href="/">RUS</a>
+            <a href="/en">ENG</a>
+          </div>
         </div>
-      </div> 
+      </div>
+
     </aside>
 
     <main>
-      <header>
+
+      <header class="mainHeader">
         <h1>Jaw X-Ray Processing Application</h1>
       </header>
-      <section>
+
+      <section class="hero">
         <h2>Welcome to the Jaw X-Ray Processing Application</h2>
-        <p>This application allows for advanced processing of jaw X-ray images, enabling effective diagnostics and
-          analysis.</p>
-        <p>Explore our features and see how they can assist you in your work.</p>
+        <p>
+          This application allows for advanced processing of jaw X-ray images, enabling effective diagnostics and
+          analysis.
+        </p>
+        <p>
+          Explore our features and see how they can assist you in your work.
+        </p>
       </section>
+
       <footer>
-        <p>&copy; 2025 Jaw X-Ray Processing Application.</p>
+        <div class="footer-content">
+          <div>
+            <h3>ToothScan</h3>
+          </div>
+          <p class="copyright">
+            &copy; 2025 Jaw X-Ray Processing Application. All rights reserved.
+          </p>
+        </div>
       </footer>
+
     </main>
+
   </div>
 </body>
 

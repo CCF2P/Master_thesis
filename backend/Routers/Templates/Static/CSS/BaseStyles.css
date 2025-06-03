@@ -18,140 +18,158 @@ body {
 }
 
 .sidebar {
-    width: 200px; /* Fixed width for sidebar */
-    background-color: #007BFF; /* Sidebar background color */
-    border:black 1px solid;
+    width: 250px; /* Fixed width for sidebar */
+    background-color: #457b9d; /* Sidebar background color */
     color: white; /* Sidebar text color */
     padding: 15px;
     display: flex;
     flex-direction: column;
 }
 
-.sidebar h2 {
-    text-align: center; /* Center header of sidebar */
-    margin: 0 0 20px; /* Margin */
+.sidebar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header img {
+    width: 64px;
+    height: 64px;
+}
+
+.sidebar-header h2 {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .sidebar ul {
-    list-style-type: none; /* Remove bullet points */
-    padding: 0; /* Remove padding */
+    list-style: none; /* Remove bullet points */
+    padding: 30px 0; /* Remove padding */
+    flex-grow: 1;
 }
 
 .sidebar ul li {
-    margin: 15px 0; /* Space between list items */
+   margin-bottom: 5px; /* Space between list items */
+}
+
+.sidebar ul li img {
+    width: 24px;
+    height: 24px;
 }
 
 .sidebar a {
-    color: white; /* White text for links */
-    text-decoration: none; /* Remove underline */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    padding: 12px 25px;
+    font-size: 1.05rem;
 }
 
 .sidebar a:hover {
     text-decoration: underline; /* Underline link on hover */
 }
 
-main {
-    flex-grow: 1; /* Take remaining space in the container */
-    display: flex;
-    flex-direction: column;
-    border: orange 1px solid;
-    padding: 5px;
-}
-
-section {
-    border: purple 1px solid;
-}
-
-header {
-    margin-bottom: 20px; /* Space below header */
-    border: green 1px solid;
-}
-
-footer {
-    border: red 1px solid;
-    background-color: #333; /* Footer background color */
-    color: white; /* Footer text color */
-    text-align: center; /* Center text in footer */
-    margin-top: auto;
-    width: 100%; /* Full width footer */
-}
-
-.sidebar a {
-    color: white; /* Normal link color */
-    text-decoration: none; /* Remove underline */
-    padding: 10px; /* Add padding to links */
-    display: block; /* Make links block elements for easier clicking */
-}
-
 .sidebar a.active {
-    background-color: #0056b3; /* Darker shade for active link */
+    background-color: white; /* Darker shade for active link */
     font-weight: bold; /* Make active link bold */
+    color: black;
 }
 
-
-
+.language-selector {
+    padding: 20px 25px 0;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
 
  /* Dropup Button */
 .dropbtn {
-    background-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
     color: white;
-    padding: 16px;
-    font-size: 16px;
+    padding: 10px 15px;
     border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1rem;
 }
 
-/* The container <div> - needed to position the dropup content */
-.dropup {
-    position: relative;
-    display: inline-block;
-    margin-top: auto;
+.dropbtn img {
+    width: 24px;
+    height: 24px;
 }
 
-/* Dropup content (Hidden by Default) */
+.dropbtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .dropup-content {
     display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    width: 100%;
-    bottom: 100%;
+    border-radius: 8px;
+    background: white;
+    overflow: hidden;
+    position: relative;
+    margin-top: 10px;
 }
 
-/* Links inside the dropup */
 .dropup-content a {
     color: black;
-    padding: 12px 16px;
+    padding: 10px 15px;
     text-decoration: none;
     display: block;
 }
 
-/* Change color of dropup links on hover */
-.dropup-content a:hover {background-color: #ddd}
+.dropup-content a:hover {
+    background: lightgray;
+}
 
-/* Show the dropup menu on hover */
 .dropup:hover .dropup-content {
     display: block;
 }
 
-/* Change the background color of the dropup button when the dropup content is shown */
-.dropup:hover .dropbtn {
-    background-color: #3e8e41;
+footer {
+    background-color: #263238; /* Footer background color */
+    color: white; /* Footer text color */
+    text-align: center;
+    margin-top: auto;
 }
 
-
-#progressBarContainer {
-    width: 100%;
-    height: 20px;
-    background-color: #f0f0f0;
-    margin-top: 10px;
-    display: none;
+.footer-content {
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#progressBar {
-    height: 100%;
-    background-color: #007bff;
+.copyright {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    margin-top: 0;
 }
 
-#progressStatus {
-    margin-top: 10px;
-    font-weight: bold;
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 20px 0;
+    }
+
+    .sidebar-header {
+        padding: 0 20px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn {
+        display: block;
+        text-align: center;
+    }
 }
