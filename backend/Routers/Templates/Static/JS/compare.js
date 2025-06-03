@@ -1,55 +1,91 @@
 document.addEventListener('DOMContentLoaded', function () {
   // Функция для обновления информации о файле
-  function updateFileInfo(fileInput, fileInfoElement) {
+  function updateFileInfo(fileInput, fileInfoElement, removeBtn) {
     if (fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
       const fileSize = (file.size / 1024 / 1024).toFixed(2); // Размер в МБ
-      console.log(file.name);
-      console.log(file.type);
+      let tmp = file.name.split('.')[1];
+      let fileType = 'UNKNOWN';
+      console.log(tmp);
+      if (tmp)
+        fileType = tmp.toUpperCase();
+
       fileInfoElement.innerHTML = `
-            <i class="fas fa-file-medical-alt"></i>
-            <div>
-              <strong>${file.name}</strong>
-              <div>${fileSize} MB • ${file.name.split('.')[1].toUpperCase()}</div>
+            <div class="file-details">
+              <div class="file-name">${file.name}</div>
+              <div class="file-meta">${fileSize} MB • ${fileType}</div>
             </div>
+            <button class="remove-btn">
+              <img src="/Static/Pictures/trash.png">
+            </button>
           `;
+
+      // Показываем кнопку удаления
+      if (removeBtn) removeBtn.style.display = 'block';
 
       // Добавляем визуальную индикацию выбранного файла
       fileInfoElement.closest('.upload-area').classList.add('file-selected');
+
+      // Добавляем обработчик для кнопки удаления
+      const newRemoveBtn = fileInfoElement.querySelector('.remove-btn');
+      if (newRemoveBtn) {
+        newRemoveBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          resetFileInput(fileInput, fileInfoElement, removeBtn);
+        });
+      }
     } else {
       fileInfoElement.innerHTML = `
-            <i class="fas fa-info-circle"></i>
-            <span>No file selected</span>
+            <div class="file-details">
+              <span class="file-name">No file selected</span>
+            </div>
           `;
       fileInfoElement.closest('.upload-area').classList.remove('file-selected');
+      if (removeBtn) removeBtn.style.display = 'none';
     }
   }
 
+  // Функция для сброса выбранного файла
+  function resetFileInput(fileInput, fileInfoElement, removeBtn) {
+    fileInput.value = '';
+    updateFileInfo(fileInput, fileInfoElement, removeBtn);
+  }
+
   // Функция для установки обработчиков загрузки файлов
-  function setupFileUpload(uploadAreaId, inputId, fileInfoId) {
+  function setupFileUpload(uploadAreaId, inputId, fileInfoId, removeBtnId) {
     const uploadArea = document.getElementById(uploadAreaId);
     const fileInput = document.getElementById(inputId);
     const fileInfo = document.getElementById(fileInfoId);
+    const removeBtn = document.getElementById(removeBtnId);
 
     // Обработчик клика по области загрузки
     uploadArea.addEventListener('click', function (e) {
-      // Не запускаем выбор файла при клике на информацию о файле
-      if (!e.target.closest('.file-info')) {
+      // Не запускаем выбор файла при клике на информацию о файле или кнопке удаления
+      if (!e.target.closest('.file-info') && !e.target.closest('.remove-btn')) {
         fileInput.click();
       }
     });
 
     // Обработчик изменения файлового ввода
     fileInput.addEventListener('change', function () {
-      updateFileInfo(this, fileInfo);
+      updateFileInfo(this, fileInfo, removeBtn);
     });
+
+    // Обработчик для кнопки удаления в заголовке
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        resetFileInput(fileInput, fileInfo, removeBtn);
+      });
+    }
   }
 
   // Drag and drop functionality
-  function setupDragAndDrop(uploadAreaId, inputId, fileInfoId) {
+  function setupDragAndDrop(uploadAreaId, inputId, fileInfoId, removeBtnId) {
     const uploadArea = document.getElementById(uploadAreaId);
     const fileInput = document.getElementById(inputId);
     const fileInfo = document.getElementById(fileInfoId);
+    const removeBtn = document.getElementById(removeBtnId);
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
       uploadArea.addEventListener(eventName, preventDefaults, false);
@@ -84,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (files.length > 0) {
         fileInput.files = files;
-        updateFileInfo(fileInput, fileInfo);
+        updateFileInfo(fileInput, fileInfo, removeBtn);
 
         // Trigger change event
         const event = new Event('change');
@@ -94,14 +130,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Установка обработчиков для всех областей загрузки
-  setupFileUpload('uploadArea1', 'image1', 'fileInfo1');
-  setupFileUpload('uploadArea2', 'image2', 'fileInfo2');
-  setupFileUpload('dbUploadArea', 'fileInput_for_db', 'fileInfoDb');
+  setupFileUpload('uploadArea1', 'image1', 'fileInfo1', 'remove1');
+  setupFileUpload('uploadArea2', 'image2', 'fileInfo2', 'remove2');
+  setupFileUpload('dbUploadArea', 'fileInput_for_db', 'fileInfoDb', 'removeDb');
 
   // Также устанавливаем drag-and-drop обработчики
-  setupDragAndDrop('uploadArea1', 'image1', 'fileInfo1');
-  setupDragAndDrop('uploadArea2', 'image2', 'fileInfo2');
-  setupDragAndDrop('dbUploadArea', 'fileInput_for_db', 'fileInfoDb');
+  setupDragAndDrop('uploadArea1', 'image1', 'fileInfo1', 'remove1');
+  setupDragAndDrop('uploadArea2', 'image2', 'fileInfo2', 'remove2');
+  setupDragAndDrop('dbUploadArea', 'fileInput_for_db', 'fileInfoDb', 'removeDb');
 
   // Progress bar simulation
   const forms = document.querySelectorAll('form');
@@ -112,7 +148,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   forms.forEach(form => {
     form.addEventListener('submit', function (e) {
-      e.preventDefault();
+      // Проверяем, что файлы выбраны
+      let valid = true;
+      if (form.id === 'double') {
+        if (!document.getElementById('image1').files.length ||
+          !document.getElementById('image2').files.length) {
+          alert('Please select both images for comparison');
+          valid = false;
+        }
+      } else if (form.id === 'uploadForm_for_db') {
+        if (!document.getElementById('fileInput_for_db').files.length) {
+          alert('Please select an image to find matches');
+          valid = false;
+        }
+      }
+
+      if (!valid) {
+        e.preventDefault();
+        return;
+      }
+
       progressContainer.style.display = 'block';
       progressStatus.textContent = 'Starting analysis...';
 
