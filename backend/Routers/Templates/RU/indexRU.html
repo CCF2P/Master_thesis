@@ -4,48 +4,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Приложение для работы с рентгеновскими снимками</title>
+  <title>Приложение для обработки рентгеновских снимков челюсти</title>
   <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+  <link rel="stylesheet" href="/Static/CSS/index.css">
 </head>
 
 <body>
   <div class="container">
+
     <aside class="sidebar">
-      <h2>ToothScan</h2>
+      <div class="sidebar-header">
+        <h2>
+          <img src="/Static/Pictures/jaw.png">
+          ToothScan
+        </h2>
+      </div>
+
       <ul>
-        <li><a href="/" class="active">Главная</a></li>
-        <li><a href="/compareRU/">Сравнение снимков</a></li>
-        <li><a href="features-extraction.html">Извлечение особенностей</a></li>
+        <li>
+          <a href="/" class="active">
+            <img src="/Static/Pictures/home.png"></img>
+            Главная
+          </a>
+        </li>
+        <li>
+          <a href="/compareRU/">
+            <img src="/Static/Pictures/compare.png"></img>
+            Сравнение снимков
+          </a>
+        </li>
+        <li>
+          <a href="features-extraction.html">
+            <img src="/Static/Pictures/reduction.png"></img>
+            Извлечение признаков
+          </a>
+        </li>
       </ul>
-      <div class="dropup">
-        <button class="dropbtn">Язык</button>
-        <div class="dropup-content">
-          <a href="/">RUS</a>
-          <a href="/en">ENG</a>
+
+      <div class="language-selector">
+        <div class="dropup">
+          <button class="dropbtn">
+            <img src="/Static/Pictures/world.png"></img>
+            Язык
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropup-content">
+            <a href="/">РУС</a>
+            <a href="/en">АНГ</a>
+          </div>
         </div>
       </div>
+
     </aside>
 
     <main>
-      <header>
-        <h1>Приложение для работы с рентгеновскими снимками челюстей</h1>
+
+      <header class="mainHeader">
+        <h1>Приложение для обработки рентгеновских снимков челюсти</h1>
       </header>
-      <section>
+
+      <section class="hero">
         <h2>
-          Добро пожаловать в приложение для обработки рентгеновских снимков челюстей
+          Добро пожаловать в приложение для обработки рентгеновских снимков челюсти
         </h2>
         <p>
-          Это приложение позволяет выполнять расширенную обработку
-          рентгеновских снимков челюсти, обеспечивая эффективную диагностику и анализ.
+          Это приложение позволяет выполнять расширенную обработку рентгеновских снимков челюсти,
+          обеспечивая эффективную диагностику и анализ
         </p>
         <p>
           Изучите наши возможности и узнайте, как они могут помочь вам в работе.
         </p>
       </section>
+
       <footer>
-        <p>&copy; 2025 Приложение для обработки рентгеновских снимков челюсти.</p>
+        <div class="footer-content">
+          <div>
+            <h3>ToothScan</h3>
+          </div>
+          <p class="copyright">
+            &copy; 2025 Приложение для обработки рентгеновских снимков челюсти. Все права защищены.
+          </p>
+        </div>
       </footer>
+
     </main>
+
   </div>
 </body>
 

@@ -1,52 +1,159 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Сравнение рентгеновскими снимков челюстей</title>
+  <title>Сравните рентгеновские снимки челюсти</title>
   <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+  <link rel="stylesheet" href="/Static/CSS/CompareStyle.css">
 </head>
 
 <body>
   <div class="container">
+
     <aside class="sidebar">
-      <h2>ToothScan</h2>
+      <div class="sidebar-header">
+        <h2>
+          <img src="/Static/Pictures/jaw.png">
+          ToothScan
+        </h2>
+      </div>
+
       <ul>
-        <li><a href="/">Главная</a></li>
-        <li><a href="/compare/" class="active">Сравнение снимков</a></li>
-        <li><a href="features-extraction.html">Извлечение особенностей</a></li>
+        <li>
+          <a href="/">
+            <img src="/Static/Pictures/home.png"></img>
+            Главная
+          </a>
+        </li>
+        <li>
+          <a href="/compareRU/" class="active">
+            <img src="/Static/Pictures/compare.png"></img>
+            Сравнение снимков
+          </a>
+        </li>
+        <li>
+          <a href="features-extraction.html">
+            <img src="/Static/Pictures/reduction.png"></img>
+            Извлечение признаков
+          </a>
+        </li>
       </ul>
-      <div class="dropup">
-        <button class="dropbtn">Язык</button>
-        <div class="dropup-content">
-          <a href="/">RUS</a>
-          <a href="/en">ENG</a>
+
+      <div class="language-selector">
+        <div class="dropup">
+          <button class="dropbtn">
+            <img src="/Static/Pictures/world.png"></img>
+            Язык
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <div class="dropup-content">
+            <a href="/">РУС</a>
+            <a href="/en">АНГ</a>
+          </div>
         </div>
       </div>
+
     </aside>
 
     <main>
-      <header>
-        <h1>Сравнение рентгеновскими снимков челюстей</h1>
+      <header class="mainHeader">
+        <h1>Сравните рентгеновские снимки челюсти</h1>
       </header>
+
       <section>
         <h2>Загрузите рентгеновские снимки для сравнения</h2>
-        <form action="#" method="POST">
-          <label for="image1">Выберите первый снимок:</label>
-          <input type="file" id="image1" name="image1" accept="image/*" required>
 
-          <label for="image2">Выберите второй снимок:</label>
-          <input type="file" id="image2" name="image2" accept="image/*" required>
+        <div class="comparison-modes">
+          <!-- Mode 1: Compare two images -->
+          <div class="mode-card">
+            <div class="mode-header">Сравните два изображения</div>
+            <div class="mode-content">
+              <form id="double" action="/compareEN/" method="post" enctype="multipart/form-data">
+                <!-- Контейнер для двух полей загрузки -->
+                <div class="dual-upload-container">
+                  <!-- Поле для первого изображения -->
+                  <div class="upload-item">
+                    <div class="upload-label">Загрузить первое изображение</div>
+                    <div class="upload-area" id="uploadArea1">
+                      <img src="/Static/Pictures/add-image.png"></img>
+                      <h3>Первый рентгеновский снимок</h3>
+                      <p>Перетащите или щелкните, чтобы выбрать</p>
+                      <div class="file-info" id="fileInfo1">
+                        <span>Файл не выбран</span>
+                      </div>
+                      <input type="file" id="image1" name="image1" style="display: none;">
+                    </div>
+                  </div>
+                  
+                  <!-- Поле для второго изображения -->
+                  <div class="upload-item">
+                    <div class="upload-label">Загрузить второе изображение</div>
+                    <div class="upload-area" id="uploadArea2">
+                      <img src="/Static/Pictures/add-image.png"></img>
+                      <h3>Второй рентгеновский снимок</h3>
+                      <p>Перетащите или щелкните, чтобы выбрать</p>
+                      <div class="file-info" id="fileInfo2">
+                        <span>Файл не выбран</span>
+                      </div>
+                      <input type="file" id="image2" name="image2" style="display: none;">
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="btn" type="submit">
+                  Сравнить снимки
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Mode 2: Find matches in database -->
+          <div class="mode-card">
+            <div class="mode-header">Найти совпадения в базе данных</div>
+            <div class="mode-content">
+              <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
+                <div class="upload-area" id="dbUploadArea">
+                  <img src="/Static/Pictures/database.png"></img>
+                  <h3>Загрузите изображение, чтобы найти совпадения</h3>
+                  <p>Перетащите изображение сюда или щелкните, чтобы просмотреть</p>
+                  <div class="file-info" id="fileInfoDb">
+                    <span>Файл не выбран</span>
+                  </div>
+                  <input id="fileInput_for_db" name="user_images" type="file" multiple style="display: none;">
+                </div>
+                
+                <button class="btn btn-accent" type="submit">
+                  Найти совпадения
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
 
-          <input type="submit" value="Сравнить снимки">
-        </form>
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" style="display: none;">
+          <div id="progressBar"></div>
+        </div>
+        <div id="progressStatus"></div>
+
       </section>
+
       <footer>
-        <p>&copy; 2025 Приложение для обработки рентгеновских снимков челюсти.</p>
+        <div class="footer-content">
+          <div>
+            <h3>ToothScan</h3>
+          </div>
+          <p class="copyright">
+            &copy; 2025 Приложение для обработки рентгеновских снимков челюсти. Все права защищены.
+          </p>
+        </div>
       </footer>
+
     </main>
   </div>
+  <script src="/Static/JS/compare.js"></script>
 </body>
 
 </html>
