@@ -39,21 +39,28 @@ async def test(db_session: AsyncSession = Depends(get_async_session)):
 # /////////////////////////////////////////////////////
 @database_router.post(
     path="/compareEN/",
-    summary="Compare page",
-    response_model=Feature
+    summary="Compare page"
 )
 async def compare_files(
     request: Request,
-    user_images: List[UploadFile],
+    user_image: UploadFile,
+    user_image1: UploadFile=None,
     #db_session: AsyncSession=Depends(get_async_session)
 ):
-    for user_image in user_images:
-        if not user_image.filename.endswith('.dcm'):
+    if not user_image.filename.endswith('.dcm'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only DICOM files are allowed.\n" \
+                + "Разрешены только DICOM файлы."
+        )
+    if user_image1 is not None:
+        if not user_image1.filename.endswith('.dcm'):
             raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Only DICOM files are allowed"
-                )
-        print(user_image.filename)
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only DICOM files are allowed.\n" \
+                    + "Разрешены только DICOM файлы."
+            )
+    # обработка изображений...
     return templates.TemplateResponse(
         name="/EN/resultEN.html",
         context={

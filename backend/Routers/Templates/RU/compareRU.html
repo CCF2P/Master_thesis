@@ -66,7 +66,39 @@
         <h2>Загрузите рентгеновские снимки для сравнения</h2>
 
         <div class="comparison-modes">
-          <!-- Mode 1: Compare two images -->
+          <!-- Mode 1: Find matches in database -->
+          <div class="mode-card">
+            <div class="mode-header">Найти совпадения в базе данных</div>
+            <div class="mode-content">
+              <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
+                <div class="upload-area" id="dbUploadArea">
+                  <img src="/Static/Pictures/database.png"></img>
+                  <h3>Загрузите изображение, чтобы найти совпадения</h3>
+                  <p>Перетащите изображение сюда или щелкните, чтобы просмотреть</p>
+                  <div class="file-info" id="fileInfoDb">
+                    <span>Файл не выбран</span>
+                  </div>
+                  <input id="fileInput_for_db" name="user_images" type="file" multiple style="display: none;">
+                </div>
+
+                <!-- Индикатор загрузки для этого режима -->
+                <div class="loading-indicator" id="loadingIndicatorDB">
+                  <div class="loading-spinner"></div>
+                  <div class="loading-text">Searching Database...</div>
+                </div>
+
+                <!-- Блок ошибок для этого режима -->
+                <div class="error-container" id="errorContainerDB">
+                </div>
+                
+                <button class="btn btn-accent" type="submit">
+                  Найти совпадения
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Mode 2: Compare two images -->
           <div class="mode-card">
             <div class="mode-header">Сравните два изображения</div>
             <div class="mode-content">
@@ -101,6 +133,16 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Индикатор загрузки для этого режима -->
+                <div class="loading-indicator" id="loadingIndicatorDouble">
+                  <div class="loading-spinner"></div>
+                  <div class="loading-text">Processing Images...</div>
+                </div>
+
+                <!-- Блок ошибок для этого режима -->
+                <div class="error-container" id="errorContainerDouble">
+                </div>
                 
                 <button class="btn" type="submit">
                   Сравнить снимки
@@ -108,35 +150,8 @@
               </form>
             </div>
           </div>
-          
-          <!-- Mode 2: Find matches in database -->
-          <div class="mode-card">
-            <div class="mode-header">Найти совпадения в базе данных</div>
-            <div class="mode-content">
-              <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
-                <div class="upload-area" id="dbUploadArea">
-                  <img src="/Static/Pictures/database.png"></img>
-                  <h3>Загрузите изображение, чтобы найти совпадения</h3>
-                  <p>Перетащите изображение сюда или щелкните, чтобы просмотреть</p>
-                  <div class="file-info" id="fileInfoDb">
-                    <span>Файл не выбран</span>
-                  </div>
-                  <input id="fileInput_for_db" name="user_images" type="file" multiple style="display: none;">
-                </div>
-                
-                <button class="btn btn-accent" type="submit">
-                  Найти совпадения
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
 
-        <!-- Progress Bar -->
-        <div id="progressBarContainer" style="display: none;">
-          <div id="progressBar"></div>
         </div>
-        <div id="progressStatus"></div>
 
       </section>
 

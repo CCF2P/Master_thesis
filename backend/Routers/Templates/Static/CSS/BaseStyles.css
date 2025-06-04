@@ -140,10 +140,8 @@ footer {
 }
 
 .footer-content {
-    max-width: 1200px;
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
 .copyright {
