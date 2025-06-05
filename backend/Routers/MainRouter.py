@@ -136,13 +136,25 @@ async def get_compareEN_html(request: Request):
 async def get_resultEN_html(request: Request):
     if "text/html" in request.headers.get("Accept"):
         try:
+            features = [
+                {"name": "bla", "value1": "bla", "value2": "bla", "similarity": "99"}
+            ]
             return templates.TemplateResponse(
                 name="/EN/resultEN.html",
-                context={"request": request}
+                context={
+                    "request": request,
+                    "image2_filename": "25.png",
+                    "result": 777,
+                    "similarity_score": 99,
+                    "identifier": "id_777",
+                    "analysis_date": "analysis_date",
+                    "features": features,
+
+                }
             )
         except:
             return templates.TemplateResponse(
-                name="error.html",
+                name="/EN/errorEN.html",
                 context={
                     "request": request,
                     "error_message": "Page is not found."

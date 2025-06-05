@@ -1,18 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compare Result</title>
-    <link rel="stylesheet" href="/Static/CSS/BaseStyles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare Result</title>
+  <link rel="stylesheet" href="/Static/CSS/result.css">
 </head>
+
 <body>
-    <div class="container">
-        <h1>Comparison Result</h1>
-        <p class="result">The most similar feature is: {{ result }}</p>
-        <p class="identifier">Identifier: {{ identifier }}</p>
-        <a class="btn" href="/compareEN">Back</a>
-        <a class="btn" href="/en">Go to Main Page</a>
+  <div class="container">
+    <div class="header">
+      <h1>Comparison Results</h1>
+      <p>Detailed analysis of the X-ray images comparison</p>
     </div>
+
+    <div class="content-wrapper">
+      <div class="main-content">
+        <!-- Панель изображений -->
+        <div class="images-panel">
+          <div class="image-container">
+            <div class="image-header">Original Image 1</div>
+            <div class="image-preview">
+              <img src="{{ url_for('Static', path='/Pictures/' + image2_filename) }}" alt="First X-Ray">
+            </div>
+          </div>
+
+          <div class="image-container">
+            <div class="image-header">Original Image 2</div>
+            <div class="image-preview">
+              <img src="{{ url_for('Static', path='/Pictures/' + image2_filename) }}" alt="Second X-Ray">
+            </div>
+          </div>
+        </div>
+
+        <!-- Основные результаты -->
+        <div class="results-section">
+          <h2>Comparison Summary</h2>
+
+          <div class="result-item">
+            <div class="result-label">Most Similar Feature</div>
+            <div>{{ result }}</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Similarity Score</div>
+            <div>
+              <span class="similarity-badge">{{ similarity_score }}% match</span>
+            </div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Identifier</div>
+            <div>{{ identifier }}</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Analysis Date</div>
+            <div>{{ analysis_date }}</div>
+          </div>
+        </div>
+
+        <!-- Детали сравнения -->
+        <div class="features-section">
+          <h2>Feature Comparison</h2>
+
+          <table class="feature-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Image 1</th>
+                <th>Image 2</th>
+                <th>Similarity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for feature in features %}
+              <tr>
+                <td>{{ feature.name }}</td>
+                <td>{{ feature.value1 }}</td>
+                <td>{{ feature.value2 }}</td>
+                <td>
+                  <div class="similarity-badge">{{ feature.similarity }}%</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Панель действий -->
+      <div class="actions-panel">
+        <h3>Actions</h3>
+
+        <a href="/compareEN" class="btn btn-outline">
+          <i class="fas fa-arrow-left"></i> Back to Compare
+        </a>
+
+        <a href="/en" class="btn btn-outline">
+          <i class="fas fa-home"></i> Go to Main Page
+        </a>
+
+        <a href="" class="btn btn-primary">
+          <i class="fas fa-download"></i> Download Full Report (PDF)
+        </a>
+
+        <div class="save-form">
+          <h3>Save to History</h3>
+          <form action="" method="post">
+            <input type="hidden" name="result_id" value="{{ result_id }}">
+
+            <div class="form-group">
+              <label for="comparison_name">Comparison Name</label>
+              <input type="text" id="comparison_name" name="comparison_name"
+                placeholder="Enter a name for this comparison" required>
+            </div>
+
+            <div class="form-group">
+              <label for="notes">Notes</label>
+              <input type="text" id="notes" name="notes" placeholder="Add any notes about this comparison">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <i class="fas fa-save"></i> Save to History
+            </button>
+          </form>
+        </div>
+
+        <div style="margin-top: 25px;">
+          <h3>History</h3>
+          <p>View your past comparisons:</p>
+          <a href="" class="btn btn-outline">
+            <i class="fas fa-history"></i> View History
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
