@@ -166,3 +166,38 @@ async def get_resultEN_html(request: Request):
             detail="Page is not found.",
             status_code=500
         )
+    
+
+@main_router.get(path="/resultRU/", summary="Result page")
+async def get_resultEN_html(request: Request):
+    if "text/html" in request.headers.get("Accept"):
+        try:
+            features = [
+                {"name": "bla", "value1": "bla", "value2": "bla", "similarity": "99"}
+            ]
+            return templates.TemplateResponse(
+                name="/RU/resultRU.html",
+                context={
+                    "request": request,
+                    "image2_filename": "25.png",
+                    "result": 777,
+                    "similarity_score": 99,
+                    "identifier": "id_777",
+                    "analysis_date": "analysis_date",
+                    "features": features,
+                }
+            )
+        except:
+            return templates.TemplateResponse(
+                name="/RU/errorRU.html",
+                context={
+                    "request": request,
+                    "error_message": "Страница не найдена."
+                },
+                status_code=500
+            )
+    elif "application/json" in request.headers.get("Accept"):
+        return HTTPException(
+            detail="Page is not found.",
+            status_code=500
+        )

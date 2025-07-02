@@ -38,7 +38,7 @@ async def test(db_session: AsyncSession = Depends(get_async_session)):
 # /////////////////// Post routers ////////////////////
 # /////////////////////////////////////////////////////
 @database_router.post(
-    path="/compareEN/",
+    path="/compare/",
     summary="Compare page"
 )
 async def compare_files(
@@ -61,11 +61,43 @@ async def compare_files(
                     + "Разрешены только DICOM файлы."
             )
     # обработка изображений...
-    return templates.TemplateResponse(
-        name="/EN/resultEN.html",
-        context={
-            "request": request,
-            "result": "test",
-            "identifier": "test"
-        }
-    )
+    features = [
+        {"name": "bla", "value1": "bla", "value2": "bla", "similarity": "99"}
+    ]
+    if not request.headers.get("referer").find("EN") == -1:
+        return templates.TemplateResponse(
+            name="/EN/resultEN.html",
+            context={
+                "request": request,
+                "image2_filename": "25.png",
+                "result": 777,
+                "similarity_score": 99,
+                "identifier": "id_777",
+                "analysis_date": "analysis_date",
+                "features": features,
+
+            }
+        )
+    elif not request.headers.get("referer").find("RU") == -1:
+        return templates.TemplateResponse(
+            name="/RU/resultRU.html",
+            context={
+                "request": request,
+                "image2_filename": "25.png",
+                "result": 777,
+                "similarity_score": 99,
+                "identifier": "id_777",
+                "analysis_date": "analysis_date",
+                "features": features,
+
+            }
+        )
+    else:
+        return templates.TemplateResponse(
+            name="/EN/errorEN.html",
+            context={
+                "request": request,
+                "error_message": "Server error."
+            },
+            status_code=500
+        )

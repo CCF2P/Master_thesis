@@ -70,7 +70,7 @@
           <div class="mode-card">
             <div class="mode-header">Найти совпадения в базе данных</div>
             <div class="mode-content">
-              <form id="uploadForm_for_db" action="/compareEN/" method="post" enctype="multipart/form-data">
+              <form id="uploadForm_for_db" action="/compare/" method="post" enctype="multipart/form-data">
                 <div class="upload-area" id="dbUploadArea">
                   <img src="/Static/Pictures/database.png"></img>
                   <h3>Загрузите изображение, чтобы найти совпадения</h3>
@@ -78,7 +78,7 @@
                   <div class="file-info" id="fileInfoDb">
                     <span>Файл не выбран</span>
                   </div>
-                  <input id="fileInput_for_db" name="user_images" type="file" multiple style="display: none;">
+                  <input id="fileInput_for_db" name="user_image" type="file" multiple style="display: none;">
                 </div>
 
                 <!-- Индикатор загрузки для этого режима -->
@@ -102,7 +102,7 @@
           <div class="mode-card">
             <div class="mode-header">Сравните два изображения</div>
             <div class="mode-content">
-              <form id="double" action="/compareEN/" method="post" enctype="multipart/form-data">
+              <form id="double" action="/compare/" method="post" enctype="multipart/form-data">
                 <!-- Контейнер для двух полей загрузки -->
                 <div class="dual-upload-container">
                   <!-- Поле для первого изображения -->
@@ -115,7 +115,7 @@
                       <div class="file-info" id="fileInfo1">
                         <span>Файл не выбран</span>
                       </div>
-                      <input type="file" id="image1" name="image1" style="display: none;">
+                      <input type="file" id="image1" name="user_image" style="display: none;">
                     </div>
                   </div>
                   
@@ -129,7 +129,7 @@
                       <div class="file-info" id="fileInfo2">
                         <span>Файл не выбран</span>
                       </div>
-                      <input type="file" id="image2" name="image2" style="display: none;">
+                      <input type="file" id="image2" name="user_image1" style="display: none;">
                     </div>
                   </div>
                 </div>
