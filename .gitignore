@@ -5,4 +5,6 @@ config.env
 dataset/
 ForNNTrain/
 checkpoints/
-backend/NNModels/PretrainedModels/
+backend/NNModels/PretrainedModels/*.pth
+backend/NNModels/PretrainedModels/*.keras
+backend/NNModels/PretrainedModels/*.h5
