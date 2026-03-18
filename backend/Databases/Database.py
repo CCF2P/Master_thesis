@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
 
 from Databases.Schema import Feature
 
-SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:305308@127.0.0.1:1488/db_xray_image_features"
+SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_images"
 
 # Create a postgresql engine instance
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
@@ -30,8 +30,8 @@ async def get_feature_by_identifier(
     db_session: AsyncSession = Depends(get_async_session)
 ):
     return db_session.query(Feature) \
-                    .filter(Feature.identifier == identifier) \
-                    .first()
+                     .filter(Feature.identifier == identifier) \
+                     .first()
 
 
 async def create_feature(
