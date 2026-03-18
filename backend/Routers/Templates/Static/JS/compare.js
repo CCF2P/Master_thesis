@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       fileInfoElement.innerHTML = `
         <div class="file-details">
-          <span class="file-name">No file selected</span>
+          <span class="file-name">Файл не выбран</span>
         </div>
       `;
       fileInfoElement.closest('.upload-area').classList.remove('file-selected');
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
       if (!fileInputs.every(fileInput => fileInput.files.length !== 0)) {
         errorContainer.classList.add('visible');
-        errorContainer.innerHTML = "Please select a file! Пожалуйста, выберите файл!";
+        errorContainer.innerHTML = "Пожалуйста, выберите файл!";
         return;
       }
       errorContainer.classList.remove('visible');
@@ -173,9 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         error.then((value) => {
           console.log(value);
           errorContainer.classList.add('visible');
-          errorContainer.innerHTML = `Upload failed! Ошибка загрузки!<br>
-            ${value.detail}
-          `;
+          errorContainer.innerHTML = `${value.detail}`;
         });
       }
     });

@@ -22,14 +22,14 @@
           <div class="image-container">
             <div class="image-header">Исходное изображение 1</div>
             <div class="image-preview">
-              <img src="{{ url_for('Static', path='/Pictures/' + image2_filename) }}" alt="First X-Ray">
+              <img src="{{ img1_url }}" alt="First X-Ray">
             </div>
           </div>
 
           <div class="image-container">
             <div class="image-header">Исходное изображение 2</div>
             <div class="image-preview">
-              <img src="{{ url_for('Static', path='/Pictures/' + image2_filename) }}" alt="Second X-Ray">
+              <img src="{{ img2_url }}" alt="Second X-Ray">
             </div>
           </div>
         </div>
@@ -39,20 +39,10 @@
           <h2>Сводка сравнения</h2>
 
           <div class="result-item">
-            <div class="result-label">Наиболее схожие признаки</div>
-            <div>{{ result }}</div>
-          </div>
-
-          <div class="result-item">
             <div class="result-label">Оценка сходства</div>
             <div>
               <span class="similarity-badge">{{ similarity_score }}% совпадения</span>
             </div>
-          </div>
-
-          <div class="result-item">
-            <div class="result-label">Идентификатор</div>
-            <div>{{ identifier }}</div>
           </div>
 
           <div class="result-item">
@@ -94,7 +84,7 @@
       <div class="actions-panel">
         <h3>Меню</h3>
 
-        <a href="/compareRU" class="btn btn-outline">
+        <a href="/compare/" class="btn btn-outline">
           <i class="fas fa-arrow-left"></i> Вернуться к сравнению
         </a>
 
@@ -139,5 +129,4 @@
     </div>
   </div>
 </body>
-
 </html>

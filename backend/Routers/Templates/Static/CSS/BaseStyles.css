@@ -75,6 +75,7 @@ body {
     background-color: white; /* Darker shade for active link */
     font-weight: bold; /* Make active link bold */
     color: black;
+    font-size: 1.03rem;
 }
 
 .language-selector {

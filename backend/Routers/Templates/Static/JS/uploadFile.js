@@ -9,12 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
     
     if (!fileInput.files.length) {
-      progressStatus.textContent = "Please select a file!";
+      progressStatus.textContent = "Пожалуйста, выберите файл";
       return;
     }
 
     progressBarContainer.style.display = "block";
-    progressStatus.textContent = "Uploading...";
+    progressStatus.textContent = "Загрузка файла...";
 
     const formData = new FormData(form);
 
@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       // console.log("Server response:", response);
     } catch (error) {
-      console.error("Upload failed:", error.then((value) => {
-        progressStatus.textContent = `Upload failed! ${value.detail}`
+      console.error("Ошибка загрузки:", error.then((value) => {
+        progressStatus.textContent = `Ошибка загрузки! ${value.detail}`
       }));
       progressBar.style.backgroundColor = "#ff4444";
     }

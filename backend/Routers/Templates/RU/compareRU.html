@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
   <meta charset="UTF-8">
@@ -11,7 +11,6 @@
 
 <body>
   <div class="container">
-
     <aside class="sidebar">
       <div class="sidebar-header">
         <h2>
@@ -28,7 +27,7 @@
           </a>
         </li>
         <li>
-          <a href="/compareRU/" class="active">
+          <a href="/compare/" class="active">
             <img src="/Static/Pictures/compare.png"></img>
             Сравнение снимков
           </a>
@@ -70,7 +69,7 @@
           <div class="mode-card">
             <div class="mode-header">Найти совпадения в базе данных</div>
             <div class="mode-content">
-              <form id="uploadForm_for_db" action="/compare/" method="post" enctype="multipart/form-data">
+              <form id="uploadForm_for_db" action="/search/" method="post" enctype="multipart/form-data">
                 <div class="upload-area" id="dbUploadArea">
                   <img src="/Static/Pictures/database.png"></img>
                   <h3>Загрузите изображение, чтобы найти совпадения</h3>
@@ -84,7 +83,7 @@
                 <!-- Индикатор загрузки для этого режима -->
                 <div class="loading-indicator" id="loadingIndicatorDB">
                   <div class="loading-spinner"></div>
-                  <div class="loading-text">Searching Database...</div>
+                  <div class="loading-text">Поиск в базе данных...</div>
                 </div>
 
                 <!-- Блок ошибок для этого режима -->
@@ -150,9 +149,7 @@
               </form>
             </div>
           </div>
-
         </div>
-
       </section>
 
       <footer>
@@ -170,5 +167,4 @@
   </div>
   <script src="/Static/JS/compare.js"></script>
 </body>
-
 </html>
