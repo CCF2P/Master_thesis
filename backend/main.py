@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-#
 from Routers.MainRouter import main_router
 from Routers.DatabaseRouter import database_router
 
