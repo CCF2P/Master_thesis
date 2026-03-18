@@ -5,3 +5,4 @@ config.env
 dataset/
 ForNNTrain/
 checkpoints/
+backend/NNModels/PretrainedModels/
