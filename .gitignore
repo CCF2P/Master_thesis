@@ -4,3 +4,4 @@ app/core/NeuralNetworkModels/Models/
 config.env
 dataset/
 ForNNTrain/
+checkpoints/
