@@ -44,3 +44,4 @@ async def create_feature(
     db_session.commit()
     db_session.refresh(db_feature)
     return db_feature
+
