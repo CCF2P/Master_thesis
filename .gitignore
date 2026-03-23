@@ -8,3 +8,4 @@ checkpoints/
 backend/NNModels/PretrainedModels/*.pth
 backend/NNModels/PretrainedModels/*.keras
 backend/NNModels/PretrainedModels/*.h5
+backend/Routers/Templates/Static/Uploads/

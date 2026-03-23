@@ -22,14 +22,14 @@
           <div class="image-container">
             <div class="image-header">Исходное изображение 1</div>
             <div class="image-preview">
-              <img src="{{ img1_url }}" alt="First X-Ray">
+              <img src="{{ img1_url }}" alt="Не удалось загрузить изображение">
             </div>
           </div>
 
           <div class="image-container">
             <div class="image-header">Исходное изображение 2</div>
             <div class="image-preview">
-              <img src="{{ img2_url }}" alt="Second X-Ray">
+              <img src="{{ img2_url }}" alt="Не удалось загрузить изображение">
             </div>
           </div>
         </div>
@@ -41,7 +41,7 @@
           <div class="result-item">
             <div class="result-label">Оценка сходства</div>
             <div>
-              <span class="similarity-badge">{{ similarity_score }}% совпадения</span>
+              <span class="similarity-badge">{{ similarity_score }}%</span>
             </div>
           </div>
 
@@ -67,9 +67,10 @@
             <tbody>
               {% for feature in features %}
               <tr>
-                <td>{{ feature.name }}</td>
-                <td>{{ feature.value1 }}</td>
-                <td>{{ feature.value2 }}</td>
+                <td>{{ feature.rank }}</td>
+                <td>{{ feature.db_id }}</td>
+                <td>{{ feature.db_filename }}</td>
+                <td>{{ feature.db_path }}</td>
                 <td>
                   <div class="similarity-badge">{{ feature.similarity }}%</div>
                 </td>

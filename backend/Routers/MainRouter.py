@@ -81,7 +81,7 @@ async def get_compareRU_html(request: Request):
 
 # ================== Result pages ========================
 @main_router.get(path="/result/", summary="Result page")
-async def get_resultEN_html(request: Request):
+async def get_result_html(request: Request):
     try:
         features = [
             {"name": "bla", "value1": "bla", "value2": "bla", "similarity": "99"}
@@ -110,25 +110,3 @@ async def get_resultEN_html(request: Request):
 
 
 # ================== Features extraction pages ========================
-@main_router.get(path="/extractEN/", summary="Result page")
-async def get_resultEN_html(request: Request):
-    if "text/html" in request.headers.get("Accept"):
-        try:
-            return templates.TemplateResponse(
-                name="/EN/extractEN.html",
-                context={"request": request}
-            )
-        except:
-            return templates.TemplateResponse(
-                name="/EN/errorEN.html",
-                context={
-                    "request": request,
-                    "error_message": "Страница не найдена."
-                },
-                status_code=500
-            )
-    elif "application/json" in request.headers.get("Accept"):
-        return HTTPException(
-            detail="Page is not found.",
-            status_code=500
-        )

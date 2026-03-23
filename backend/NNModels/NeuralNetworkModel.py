@@ -48,9 +48,9 @@ class StackedChannelsModel(nn.Module):
                     new_conv = nn.Conv2d(
                         in_channels,
                         child.out_channels,
-                        kernel_size=child.kernel_size,
-                        stride=child.stride,
-                        padding=child.padding,
+                        kernel_size=child.kernel_size, #type: ignore
+                        stride=child.stride,           #type: ignore
+                        padding=child.padding,         #type: ignore
                         bias=child.bias is not None
                     )
                     with torch.no_grad():
@@ -58,7 +58,7 @@ class StackedChannelsModel(nn.Module):
                         mean_w = child.weight.mean(dim=1, keepdim=True)
                         new_conv.weight[:, 3:] = mean_w.repeat(1, 3, 1, 1)
                         if child.bias is not None:
-                            new_conv.bias.copy_(child.bias)
+                            new_conv.bias.copy_(child.bias) #type: ignore
                     setattr(module, name, new_conv)
                     return True
                 if replace_conv(child):
@@ -130,8 +130,8 @@ def predict_pair(
     base_tf,
     device
 ):
-    img1 = cv2.cvtColor(cv2.imread(path1), cv2.COLOR_BGR2RGB)
-    img2 = cv2.cvtColor(cv2.imread(path2), cv2.COLOR_BGR2RGB)
+    img1 = cv2.cvtColor(cv2.imread(path1), cv2.COLOR_BGR2RGB) #type: ignore
+    img2 = cv2.cvtColor(cv2.imread(path2), cv2.COLOR_BGR2RGB) #type: ignore
 
     img1 = base_tf(image=img1)["image"]
     img2 = base_tf(image=img2)["image"]
@@ -145,16 +145,26 @@ def predict_pair(
     return prob_same
 
 
+async def get_image_bytes_by_path(path: str) -> bytes:
+    with open(path, 'rb') as f:
+        return f.read()
+
+
 async def predict_pair_async(
     model,
     img_bytes1: bytes,
     img_bytes2: bytes,
     base_tf,
-    device: str
+    device
 ):
     """
     Asynchronous version for working with image bytes
     """
+    if len(img_bytes1) == 0:
+        raise ValueError("Empty bytes for first image")
+    if len(img_bytes2) == 0:
+        raise ValueError("Empty bytes for second image")
+
     img1 = cv2.imdecode(np.frombuffer(img_bytes1, np.uint8), cv2.IMREAD_COLOR)
     img2 = cv2.imdecode(np.frombuffer(img_bytes2, np.uint8), cv2.IMREAD_COLOR)
     if img1 is None or img2 is None:

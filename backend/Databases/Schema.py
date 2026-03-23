@@ -2,6 +2,8 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
     Column,
+    DateTime,
+    Text,
     Integer,
     JSON,
     String
@@ -10,17 +12,6 @@ from sqlalchemy import (
 # Create a DeclarativeMeta instance
 class Base (DeclarativeBase):
     pass
-
-
-class TestTable(Base):
-    __tablename__ = "test"
-    id = Column(
-        Integer,
-        nullable=False,
-        primary_key=True,
-        autoincrement=True
-    )
-    msg = Column(String(40))
 
 
 class ImagesTable(Base):
@@ -32,24 +23,24 @@ class ImagesTable(Base):
         autoincrement=True
     )
     patient_id = Column(
-        Integer,
-        nullable=False
-    )
-    filename = Column(
         String(50),
         nullable=False
     )
-    storage_path = Column(
+    filename = Column(
         String(255),
         nullable=False
     )
-    upload_data = Column(
+    storage_path = Column(
+        Text,
+        nullable=False
+    )
+    upload_date = Column(
         DateTime,
         default=datetime.now
     )
     age = Column(Integer)
     sex = Column(String(1))
-    metadata = Column(JSON)
+    metadata_ = Column("metadata", JSON)
 
 
 class Feature(Base):

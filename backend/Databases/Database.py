@@ -1,47 +1,56 @@
 from typing import AsyncGenerator
 
-from fastapi import Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
     async_sessionmaker
 )
 
-from Databases.Schema import Feature
+# from Models.Model import ImageTable
 
-SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_images"
+
+SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_database"
 
 # Create a postgresql engine instance
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL,
+    echo=True,
+    pool_pre_ping=True, # Проверка соединений
+    pool_size=20,
+    max_overflow=30,
+    pool_timeout=30,
+    pool_recycle=3600,
+    connect_args={
+        "command_timeout": 60,
+        "server_settings": {
+            "application_name": "optg_app"
+        }
+    }
+)
 async_session_local = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
-    expire_on_commit=False
+    expire_on_commit=False,
+    autocommit=False
 )
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_local() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
-async def get_feature_by_identifier(
-    identifier: str,
-    db_session: AsyncSession = Depends(get_async_session)
-):
-    return db_session.query(Feature) \
-                     .filter(Feature.identifier == identifier) \
-                     .first()
-
-
-async def create_feature(
-    feature: dict,
-    identifier: str,
-    db_session: AsyncSession = Depends(get_async_session)
-):
-    db_feature = Feature(feature=feature, identifier=identifier)
-    db_session.add(db_feature)
-    db_session.commit()
-    db_session.refresh(db_feature)
-    return db_feature
+'''async def get_all_image_records(db_session: AsyncSession):
+    """Возвращает список кортежей (id, storage_path, filename) из таблицы images."""
+    query = select(
+        ImageTable.id,                #type: ignore
+        ImageTable.storage_path,      #type: ignore
+        ImageTable.filename           #type: ignore
+    )                                 #type: ignore
+    result = await db_session.execute(query)
+    return result.fetchall()'''
 
