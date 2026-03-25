@@ -13,7 +13,16 @@ if path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
 HOST = getenv("HOST")
-PORT = int(getenv("PORT"))
+if HOST is None:
+    HOST = "127.0.0.1"
+    print("[WARN ] Application will start on 127.0.0.1")
+
+PORT = getenv("PORT")
+if PORT is None:
+    print("[WARN ] Application will use the port by default - 8000")
+    PORT = 8000
+else:
+    PORT = int(PORT)
 
 app = FastAPI()
 
@@ -42,6 +51,5 @@ if __name__ == "__main__":
         app="main:app",
         host=HOST,
         port=PORT,
-        http="auto",
-        reload=True
+        http="auto"
     )

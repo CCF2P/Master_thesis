@@ -80,20 +80,21 @@
                   <input id="fileInput_for_db" name="user_image" type="file" multiple style="display: none;">
                 </div>
 
-                <!-- Индикатор загрузки для этого режима -->
-                <div class="loading-indicator" id="loadingIndicatorDB">
-                  <div class="loading-spinner"></div>
-                  <div class="loading-text">Поиск в базе данных...</div>
-                </div>
-
                 <!-- Блок ошибок для этого режима -->
                 <div class="error-container" id="errorContainerDB">
                 </div>
-                
+
                 <button class="btn btn-accent" type="submit">
                   Найти совпадения
                 </button>
               </form>
+
+              <!-- Индикатор загрузки для этого режима -->
+              <div class="loading-indicator" id="loadingIndicatorDB">
+                <div class="loading-spinner"></div>
+                <p>Поиск в базе данных...</p>
+              </div>
+
             </div>
           </div>
 
@@ -117,7 +118,7 @@
                       <input type="file" id="image1" name="user_image" style="display: none;">
                     </div>
                   </div>
-                  
+
                   <!-- Поле для второго изображения -->
                   <div class="upload-item">
                     <div class="upload-label">Загрузить второе изображение</div>
@@ -133,20 +134,19 @@
                   </div>
                 </div>
 
-                <!-- Индикатор загрузки для этого режима -->
-                <div class="loading-indicator" id="loadingIndicatorDouble">
-                  <div class="loading-spinner"></div>
-                  <div class="loading-text">Processing Images...</div>
-                </div>
-
                 <!-- Блок ошибок для этого режима -->
                 <div class="error-container" id="errorContainerDouble">
                 </div>
-                
-                <button class="btn" type="submit">
-                  Сравнить снимки
-                </button>
+
+                <button class="btn" type="submit">Сравнить снимки</button>
               </form>
+
+              <!-- Индикатор загрузки для этого режима -->
+              <div class="loading-indicator" id="loadingIndicatorDouble">
+                <div class="loading-spinner"></div>
+                <p>Сравнение изображений...</p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -167,4 +167,5 @@
   </div>
   <script src="/Static/JS/compare.js"></script>
 </body>
+
 </html>

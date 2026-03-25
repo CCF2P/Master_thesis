@@ -1,4 +1,26 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // === Глобальное состояние обработки ===
+  let isProcessing = false;
+
+  // === Блокировка ухода со страницы ===
+  function enablePageLock() {
+    isProcessing = true;
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  }
+
+  function disablePageLock() {
+    isProcessing = false;
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  }
+
+  function handleBeforeUnload(e) {
+    if (isProcessing) {
+      e.preventDefault();
+      e.returnValue = 'Идёт обработка. Вы уверены, что хотите уйти?';
+      return e.returnValue;
+    }
+  }
+
   // Функция для обновления информации о файле
   function updateFileInfo(fileInput, fileInfoElement, removeBtn) {
     if (fileInput.files && fileInput.files.length > 0) {
@@ -131,9 +153,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Установка обработчиков для отправки данных на сервер
   // и отображения инидикатора обработки до тех пор, пока сервер обрабатывает
-  function setupSendFilesOnServer(formID, errorContainerID, fileInputsID) {
+  function setupSendFilesOnServer(
+    formID,
+    errorContainerID,
+    loadingIndicatorID,
+    fileInputsID
+  ) {
     const form = document.getElementById(formID);
     let errorContainer = document.getElementById(errorContainerID);
+    let loadingIndicator = document.getElementById(loadingIndicatorID)
     let fileInputs = new Array();
     fileInputsID.forEach((fileInputID) => {
       fileInputs.push(document.getElementById(fileInputID));
@@ -143,16 +171,28 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
       if (!fileInputs.every(fileInput => fileInput.files.length !== 0)) {
         errorContainer.classList.add('visible');
-        errorContainer.innerHTML = "Пожалуйста, выберите файл!";
+        errorContainer.innerHTML = 'Пожалуйста, выберите файл!';
         return;
       }
-      errorContainer.classList.remove('visible');
 
+      errorContainer.classList.remove('visible');
       const formData = new FormData(form);
+
+      // Блокируем все кнопки отправки в форме
+      const allSubmitButtons = form.querySelectorAll('button[type="submit"]');
+      allSubmitButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+      });
+
+      if (loadingIndicator) {
+        loadingIndicator.classList.add('loading-visible');
+      }
+
+      enablePageLock();
+
       try {
-        console.log(form.action);
-        console.log(form.method);
-        console.log(formData);
         const response = await fetch(form.action, {
           method: form.method,
           body: formData,
@@ -175,6 +215,19 @@ document.addEventListener('DOMContentLoaded', function () {
           errorContainer.classList.add('visible');
           errorContainer.innerHTML = `${value.detail}`;
         });
+
+        disablePageLock();
+
+        // Разблокируем кнопки
+        allSubmitButtons.forEach(btn => {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        });
+
+        if (loadingIndicator) {
+          loadingIndicator.classList.remove('loading-visible');
+        }
       }
     });
   }
@@ -193,11 +246,13 @@ document.addEventListener('DOMContentLoaded', function () {
   setupSendFilesOnServer(
     'double',
     'errorContainerDouble',
+    'loadingIndicatorDouble',
     ['image1', 'image2']
   );
   setupSendFilesOnServer(
     'uploadForm_for_db',
     'errorContainerDB',
+    'loadingIndicatorDB',
     ['fileInput_for_db']
   );
 });
