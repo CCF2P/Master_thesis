@@ -1,4 +1,4 @@
-import logging
+import os
 import cv2
 import timm
 import torch
@@ -7,8 +7,6 @@ import numpy as np
 
 from torch import nn
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # ============================================================
 # Model definition 
@@ -96,11 +94,11 @@ class ModelLoader:
         Loads model and moves it to the specified device
         """
         if self._model is not None:
-            logger.info("Model already loaded, skipping")
+            print("[INFO ] Model already loaded, skipping...")
             return self._model
 
         self._device = torch.device(device if torch.cuda.is_available() and device == "cuda" else "cpu")
-        logger.info(f"Loading model from {checkpoint_path} on {self._device}...")
+        print(f"[INFO ] Loading model from {checkpoint_path} on {self._device}...")
 
         model = StackedChannelsModel(backbone_name=backbone_name)
         state_dict = torch.load(checkpoint_path, map_location=self._device)
@@ -108,7 +106,7 @@ class ModelLoader:
         model.to(self._device)
         model.eval()
         self._model = model
-        logger.info("Model loaded successfully")
+        print("[INFO ] Model loaded successfully")
         return self._model
 
     def get_model(self):
@@ -145,9 +143,19 @@ def predict_pair(
     return prob_same
 
 
-async def get_image_bytes_by_path(path: str) -> bytes:
-    with open(path, 'rb') as f:
-        return f.read()
+async def get_image_bytes_by_path(path: str) -> bytes|None:
+    try:
+        with open(path, 'rb') as f:
+            return f.read()
+    except FileNotFoundError:
+        print("[ERROR] File not found")
+        return None
+    except PermissionError:
+        print("[ERROR] File access denied")
+        return None
+    except IOError as e:
+        print(f"[ERROR] Error opening file: {e}")
+        return None
 
 
 async def predict_pair_async(
