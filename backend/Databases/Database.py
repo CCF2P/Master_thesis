@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker
 )
 
-# from Models.Model import ImageTable
+from Databases.Schema import ImagesTable
 
 
 SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_database"
@@ -44,13 +44,13 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
-'''async def get_all_image_records(db_session: AsyncSession):
+async def get_all_image_records(db_session: AsyncSession):
     """Возвращает список кортежей (id, storage_path, filename) из таблицы images."""
     query = select(
-        ImageTable.id,                #type: ignore
-        ImageTable.storage_path,      #type: ignore
-        ImageTable.filename           #type: ignore
-    )                                 #type: ignore
+        ImagesTable.id,        
+        ImagesTable.filename,          
+        ImagesTable.storage_path       
+    )                                 
     result = await db_session.execute(query)
-    return result.fetchall()'''
+    return result.fetchall()
 

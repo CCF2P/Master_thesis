@@ -39,7 +39,7 @@ def build_records(df: pd.DataFrame):
     df["filename"] = df["path_to_img"].apply(lambda x: PureWindowsPath(str(x)).name)
 
     # patient_id должен быть строкой, потому что в БД это varchar(50)
-    df["patient_id"] = df["id"].apply(lambda x: f"CSV_PID_{int(x)}")
+    df["patient_id"] = df["id"].apply(lambda x: f"{int(x)}")
 
     # age -> целое число или None
     df["age"] = pd.to_numeric(df["age"], errors="coerce")
