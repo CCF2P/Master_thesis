@@ -1,9 +1,10 @@
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator, Sequence, Tuple
 
-from sqlalchemy import select
+from sqlalchemy import select, Row, Select, Result
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
+    AsyncEngine,
     async_sessionmaker
 )
 
@@ -13,10 +14,10 @@ from Databases.Schema import ImagesTable
 SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_database"
 
 # Create a postgresql engine instance
-engine = create_async_engine(
+engine: AsyncEngine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
     echo=True,
-    pool_pre_ping=True, # Проверка соединений
+    pool_pre_ping=True, # Check for successfull connection
     pool_size=20,
     max_overflow=30,
     pool_timeout=30,
@@ -44,13 +45,12 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
-async def get_all_image_records(db_session: AsyncSession):
+async def get_all_image_records(db_session: AsyncSession) -> Sequence[Row[Tuple[int, str, str]]]:
     """Возвращает список кортежей (id, storage_path, filename) из таблицы images."""
-    query = select(
-        ImagesTable.id,        
-        ImagesTable.filename,          
-        ImagesTable.storage_path       
-    )                                 
-    result = await db_session.execute(query)
+    query: Select[Tuple[int, str, str]] = select(
+        ImagesTable.id,
+        ImagesTable.filename,
+        ImagesTable.storage_path
+    )
+    result: Result[Tuple[int, str, str]] = await db_session.execute(query)
     return result.fetchall()
-

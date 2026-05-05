@@ -1,4 +1,3 @@
-import os
 import cv2
 import timm
 import torch
@@ -12,7 +11,7 @@ from torch import nn
 # Model definition 
 # ============================================================
 class StackedChannelsModel(nn.Module):
-    def __init__(self, backbone_name, num_classes=2):
+    def __init__(self, backbone_name: str, num_classes: int=2):
         super().__init__()
 
         self.backbone = timm.create_model(
@@ -25,7 +24,7 @@ class StackedChannelsModel(nn.Module):
         self._adapt_first_layer(in_channels=6)
 
         with torch.no_grad():
-            dummy = torch.randn(1, 6, 224, 224)
+            dummy: torch.Tensor = torch.randn(1, 6, 224, 224)
             feat = self.backbone(dummy)
             in_features = feat.shape[1]
 
@@ -46,9 +45,9 @@ class StackedChannelsModel(nn.Module):
                     new_conv = nn.Conv2d(
                         in_channels,
                         child.out_channels,
-                        kernel_size=child.kernel_size, #type: ignore
-                        stride=child.stride,           #type: ignore
-                        padding=child.padding,         #type: ignore
+                        kernel_size=child.kernel_size, # type: ignore
+                        stride=child.stride,           # type: ignore
+                        padding=child.padding,         # type: ignore
                         bias=child.bias is not None
                     )
                     with torch.no_grad():
@@ -97,7 +96,9 @@ class ModelLoader:
             print("[INFO ] Model already loaded, skipping...")
             return self._model
 
-        self._device = torch.device(device if torch.cuda.is_available() and device == "cuda" else "cpu")
+        self._device = torch.device(
+            device if torch.cuda.is_available() and device == "cuda" else "cpu"
+        )
         print(f"[INFO ] Loading model from {checkpoint_path} on {self._device}...")
 
         model = StackedChannelsModel(backbone_name=backbone_name)

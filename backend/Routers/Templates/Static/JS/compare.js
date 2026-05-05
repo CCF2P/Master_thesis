@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // === Глобальное состояние обработки ===
+  // Глобальное состояние обработки
   let isProcessing = false;
 
-  // === Блокировка ухода со страницы ===
+  // Блокировка ухода со страницы
   function enablePageLock() {
     isProcessing = true;
     window.addEventListener('beforeunload', handleBeforeUnload);

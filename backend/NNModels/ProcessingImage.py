@@ -16,7 +16,7 @@ from albumentations import (
 # ============================================================
 # ------------------- TRANSFORMS -----------------------------
 # ============================================================
-def get_val_transforms(target_size):
+def get_val_transforms(target_size) -> Compose:
     """
     Here are the given values of mean and standard deviation for ImageNet.\n
     mean = (0.485, 0.456, 0.406)\n
@@ -39,7 +39,7 @@ def get_val_transforms(target_size):
     ])
 
 
-def get_val_aug_transforms():
+def get_val_aug_transforms() -> Compose:
     """
     Light augmentations ONLY for positive pairs during validation.\n
     IMPORTANT: Without Resize and Normalize
