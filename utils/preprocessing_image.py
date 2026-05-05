@@ -132,12 +132,12 @@ def get_train_transforms(
     return transforms
 
 
-def get_val_transforms(target_size):   
+def get_val_transforms(target_size):
     """
-    Here are the given values ​​of mean and standard deviation for ImageNet.\n
+    Here are the given values of mean and standard deviation for ImageNet.\n
     mean = (0.485, 0.456, 0.406)\n
     std = (0.229, 0.224, 0.225)
-    
+
     :param target_size: It is a tuple consisting of two numbers: width and height.
     """
     return Compose([
@@ -190,7 +190,7 @@ class SmiCLRDataset(torch.utils.data.Dataset):
         image = cv2.imread(img_path)
         if image is None:
             raise ValueError(f"[ERROR] Image not found: {img_path}")
-        
+
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         aug1 = self.transform(image=image)["image"]
@@ -214,7 +214,7 @@ class SmiMIMDataset(torch.utils.data.Dataset):
         image = cv2.imread(img_path)
         if image is None:
             raise ValueError(f"[ERROR] Image not found: {img_path}")
-        
+
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.transform:
             img = self.transform(image=image)["image"]
@@ -270,7 +270,7 @@ class PairDataset(torch.utils.data.Dataset):
         self,
         csv_path: str,
         root_dir: str,
-        transform=None, 
+        transform=None,
         val_aug_transform=None,
         is_train: bool=True,
         num_neg_per_pos: int=5
@@ -281,22 +281,22 @@ class PairDataset(torch.utils.data.Dataset):
         self.val_aug_transform = val_aug_transform
         self.is_train = is_train
         self.num_neg_per_pos = num_neg_per_pos
-        
+
         self.paths = self.df['path_to_img'].values
         self.ids = self.df['id'].values
         self.unique_ids = np.unique(self.ids) # type: ignore
         self.id_to_indices = {id_: np.where(self.ids == id_)[0] for id_ in self.unique_ids}
-        
+
         # Checking the quality of the dataset
         avg_images_per_id = len(self.df) / len(self.unique_ids)
         print(f":: Dataset: {csv_path.split('/')[-1]} | Avg images per ID: {avg_images_per_id:.2f}")
-        
+
         if not is_train and avg_images_per_id < 1.5:
             warnings.warn(
                 f"[WARN] Only {avg_images_per_id:.2f} images per ID in validation/test. "
                 f"Positive pairs will use augmentations."
             )
-        
+
         # For validation, we generate fixed pairs
         if not is_train:
             self.pairs = self._generate_fixed_pairs(
@@ -308,11 +308,11 @@ class PairDataset(torch.utils.data.Dataset):
         """Generating balanced pairs for validation/testing"""
         if random_state:
             np.random.seed(random_state)
-        
+
         pairs = []
         for id_ in self.unique_ids:
             indices = self.id_to_indices[id_]
-            
+
             # Positive pairs: all combinations of photos of one person
             if len(indices) > 1:
                 # If several photos - we use different ones
@@ -323,7 +323,7 @@ class PairDataset(torch.utils.data.Dataset):
                 # One photo is a special marker for augmentations
                 idx = indices[0]
                 pairs.append((idx, idx, 1))
-            
+
             # Negative pairs
             other_ids = self.unique_ids[self.unique_ids != id_]
             if len(other_ids) > 0:
@@ -356,7 +356,7 @@ class PairDataset(torch.utils.data.Dataset):
         pos_id = np.random.choice(self.unique_ids)
         indices = self.id_to_indices[pos_id]
         idx1 = np.random.choice(indices)
-        
+
         if np.random.rand() > 0.5:
             same = 1
             if len(indices) > 1:
@@ -367,18 +367,18 @@ class PairDataset(torch.utils.data.Dataset):
             same = 0
             neg_id = np.random.choice(self.unique_ids[self.unique_ids != pos_id])
             idx2 = np.random.choice(self.id_to_indices[neg_id])
-        
+
         img1 = self._load_image(idx1)
         img2 = self._load_image(idx2)
-        
+
         if self.transform:
             img1 = self.transform(image=img1)['image']
             img2 = self.transform(image=img2)['image']
-        
+
         # Отладка (можно закомментировать после исправления)
         # print(f"img1 shape: {img1.shape}, img2 shape: {img2.shape}")
         assert img1.shape == img2.shape, f"Shape mismatch: {img1.shape} vs {img2.shape}"
-        
+
         stacked = torch.cat([img1, img2], dim=0)  # (6, H, W) # type: ignore
         return stacked, torch.tensor(same, dtype=torch.long)
 
@@ -389,7 +389,7 @@ class PairDataset(torch.utils.data.Dataset):
         """
         img1 = self._load_image(idx1)
         img2 = self._load_image(idx2)
-        
+
         if is_val and idx1 == idx2 and same == 1:
             # Special case: one photo - we use DIFFERENT augmentations
             img1 = self.transform(image=img1)['image']  # Resize + Normalize # type: ignore
@@ -398,7 +398,7 @@ class PairDataset(torch.utils.data.Dataset):
         else:
             img1 = self.transform(image=img1)['image'] # type: ignore
             img2 = self.transform(image=img2)['image'] # type: ignore
-        
+
         stacked = torch.cat([img1, img2], dim=0)
         return stacked, torch.tensor(same, dtype=torch.long)
 
@@ -409,3 +409,4 @@ class PairDataset(torch.utils.data.Dataset):
             raise ValueError(f"Image not found: {path}")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
+

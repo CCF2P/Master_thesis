@@ -11,12 +11,12 @@ pd.set_option('display.width', None)
 path_to_folder_w = "E:/Diploma_ISU/Datasets/OPTG1/w"
 path_to_folder_m = "E:/Diploma_ISU/Datasets/OPTG1/m"
 path = "E:/Diploma_ISU/Datasets/xrays"
-pattern_id = r"\((\d+)\)"
 
 dataset = pd.DataFrame(
     columns=["age", "sex", "path_to_img"]
 )
 
+pattern_id = r"\((\d+)\)"
 def add_data(
     path_to_folder: str,
     dataframe: pd.DataFrame,
