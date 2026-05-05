@@ -17,7 +17,7 @@ if os.path.exists(dotenv_path):
 HOST: str | None = os.getenv("HOST")
 if HOST is None:
     HOST = "127.0.0.1"
-    print("[WARN ] Application will start on 127.0.0.1")
+    print("[WARN ] Application will start on localhost: 127.0.0.1")
 
 PORT: str | None = os.getenv("PORT")
 if PORT is None:
@@ -43,7 +43,6 @@ app.mount(
     name="Static"
 )
 
-# Include created routers
 app.include_router(main_router)
 app.include_router(database_router)
 

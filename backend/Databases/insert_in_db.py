@@ -11,7 +11,7 @@ from Database import engine
 from Schema import ImagesTable
 
 
-CSV_FILE_PATH = r"E:\Diploma_ISU\FinalProject\dataset\metadata_dataset.csv"
+CSV_FILE_PATH = r"E:\Diploma_ISU\\FinalProject\dataset\\metadata_dataset.csv"
 
 
 def normalize_sex(value):
