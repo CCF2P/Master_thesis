@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 app/core/NeuralNetworkModels/Models/
-config.env
+*.env
 dataset/
 ForNNTrain/
 checkpoints/

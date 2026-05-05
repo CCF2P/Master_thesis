@@ -1,5 +1,8 @@
 from typing import Any, AsyncGenerator, Sequence, Tuple
 
+import os
+from dotenv import load_dotenv
+
 from sqlalchemy import select, Row, Select, Result
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
@@ -11,11 +14,17 @@ from sqlalchemy.ext.asyncio import (
 from Databases.Schema import ImagesTable
 
 
-SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:2716@127.0.0.1:1488/optg_database"
+dotenv_path: str = os.path.join(os.path.dirname(__file__), 'db_config.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
+SQLALCHEMY_DATABASE_URL: str | None = os.getenv("SQLALCHEMY_DATABASE_URL")
+if SQLALCHEMY_DATABASE_URL is None:
+    print("[ERROR] Cannot load config for database")
 
 # Create a postgresql engine instance
 engine: AsyncEngine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
+    SQLALCHEMY_DATABASE_URL, # type: ignore
     echo=True,
     pool_pre_ping=True, # Check for successfull connection
     pool_size=20,
