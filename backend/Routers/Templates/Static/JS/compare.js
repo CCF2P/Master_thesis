@@ -1,18 +1,35 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Глобальное состояние обработки
+  // ============================================================
+  // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+  // ============================================================
+  
+  // Флаг, указывающий, идёт ли сейчас обработка данных на сервере.
+  // Используется для блокировки ухода со страницы во время загрузки.
   let isProcessing = false;
 
-  // Блокировка ухода со страницы
+  // ============================================================
+  // ФУНКЦИИ БЛОКИРОВКИ УХОДА СО СТРАНИЦЫ
+  // ============================================================
+  
+  // Включает блокировку: устанавливает флаг isProcessing в true
+  // и добавляет обработчик события beforeunload, который показывает
+  // предупреждение при попытке закрыть/перезагрузить страницу.
   function enablePageLock() {
     isProcessing = true;
     window.addEventListener('beforeunload', handleBeforeUnload);
   }
 
+  // Отключает блокировку: сбрасывает флаг isProcessing в false
+  // и удаляет обработчик события beforeunload.
   function disablePageLock() {
     isProcessing = false;
     window.removeEventListener('beforeunload', handleBeforeUnload);
   }
 
+  // Обработчик события beforeunload. Вызывается браузером
+  // при попытке пользователя закрыть вкладку или уйти со страницы.
+  // Если идёт обработка (isProcessing === true), показывает
+  // стандартное предупреждение браузера.
   function handleBeforeUnload(e) {
     if (isProcessing) {
       e.preventDefault();
@@ -21,7 +38,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Функция для обновления информации о файле
+  // ============================================================
+  // ФУНКЦИИ РАБОТЫ С ЗАГРУЗКОЙ ФАЙЛОВ
+  // ============================================================
+  
+  // Обновляет информацию о выбранном файле в элементе fileInfoElement.
+  // Принимает:
+  //   - fileInput - элемент input[type="file"]
+  //   - fileInfoElement - элемент для отображения информации о файле
+  //   - removeBtn - кнопка удаления файла (может быть null)
+  // Если файл выбран: отображает имя, размер и тип файла,
+  // добавляет класс 'file-selected' для визуальной индикации.
+  // Если файл не выбран: показывает текст "Файл не выбран".
   function updateFileInfo(fileInput, fileInfoElement, removeBtn) {
     if (fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
@@ -67,13 +95,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Функция для сброса выбранного файла
+  // Сбрасывает выбранный файл: очищает значение input[type="file"]
+  // и обновляет отображаемую информацию.
+  // Принимает те же параметры, что и updateFileInfo.
   function resetFileInput(fileInput, fileInfoElement, removeBtn) {
     fileInput.value = '';
     updateFileInfo(fileInput, fileInfoElement, removeBtn);
   }
 
-  // Функция для установки обработчиков загрузки файлов
+  // Устанавливает обработчики для клика по области загрузки файла.
+  // При клике на область открывается диалог выбора файла.
+  // Не срабатывает при клике на информацию о файле или кнопку удаления.
+  // Принимает ID элементов:
+  //   - uploadAreaId - область загрузки
+  //   - inputId - скрытый input[type="file"]
+  //   - fileInfoId - элемент для отображения информации
+  //   - removeBtnId - кнопка удаления (может отсутствовать)
   function setupFileUpload(uploadAreaId, inputId, fileInfoId, removeBtnId) {
     const uploadArea = document.getElementById(uploadAreaId);
     const fileInput = document.getElementById(inputId);
@@ -102,7 +139,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Drag and drop functionality
+  // ============================================================
+  // ФУНКЦИИ DRAG-AND-DROP ЗАГРУЗКИ
+  // ============================================================
+  
+  // Устанавливает обработчики событий drag-and-drop для области загрузки.
+  // Поддерживает события: dragenter, dragover, dragleave, drop.
+  // При перетаскивании файла на область добавляется класс 'active'.
+  // При сброс�� фа��ла обновляется информация о нём.
+  // Параметры аналогичны setupFileUpload.
   function setupDragAndDrop(uploadAreaId, inputId, fileInfoId, removeBtnId) {
     const uploadArea = document.getElementById(uploadAreaId);
     const fileInput = document.getElementById(inputId);
@@ -151,8 +196,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Установка обработчиков для отправки данных на сервер
-  // и отображения инидикатора обработки до тех пор, пока сервер обрабатывает
+  // ============================================================
+  // ФУНКЦИИ ОТПРАВКИ ДАННЫХ НА СЕРВЕР
+  // ============================================================
+  
+  // Устанавливает обработчик отправки формы на сервер.
+  // При отправке:
+  //   1. Проверяет наличие файлов
+  //   2. Блокирует кнопки отправки
+  //   3. Показывает индикатор загрузки
+  //   4. Блокирует уход со страницы
+  //   5. Отправляет данные на сервер
+  //   6. При успехе: записывает ответ в документ
+  //   7. При ошибке: отображает сообщение об ошибке
+  //   8. Всегда: разблокирует кнопки и снимает блокировку
+  // Параметры:
+  //   - formID - ID формы
+  //   - errorContainerID - ID контейнера для ошибок
+  //   - loadingIndicatorID - ID индикатора загрузки
+  //   - fileInputsID - массив ID input[type="file"]
   function setupSendFilesOnServer(
     formID,
     errorContainerID,
@@ -161,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ) {
     const form = document.getElementById(formID);
     let errorContainer = document.getElementById(errorContainerID);
-    let loadingIndicator = document.getElementById(loadingIndicatorID)
+    let loadingIndicator = document.getElementById(loadingIndicatorID);
     let fileInputs = new Array();
     fileInputsID.forEach((fileInputID) => {
       fileInputs.push(document.getElementById(fileInputID));
@@ -169,12 +231,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      
+      // Проверка: все ли требуемые файлы выбраны
       if (!fileInputs.every(fileInput => fileInput.files.length !== 0)) {
         errorContainer.classList.add('visible');
         errorContainer.innerHTML = 'Пожалуйста, выберите файл!';
         return;
       }
 
+      // Очистка сообщения об ошибке
       errorContainer.classList.remove('visible');
       const formData = new FormData(form);
 
@@ -186,10 +251,12 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.style.cursor = 'not-allowed';
       });
 
+      // Показываем индикатор загрузки
       if (loadingIndicator) {
         loadingIndicator.classList.add('loading-visible');
       }
 
+      // Блокируем уход со страницы
       enablePageLock();
 
       try {
@@ -198,33 +265,48 @@ document.addEventListener('DOMContentLoaded', function () {
           body: formData,
         });
 
+        // Проверка статуса ответа
         if (!response.ok) {
-          throw response.json();
+          // При ошибкеHTTP (4xx, 5xx) получаем данные об ошибке
+          const errorData = await response.json();
+          throw errorData;
         }
 
-        // additional processing if necessary
-        const data = await response.text().then((data) => {
-          document.open();
-          document.writeln(data);
-          document.close();
-        });
-        // console.log("Server response:", response);
-      } catch (error) {
-        error.then((value) => {
-          console.log(value);
-          errorContainer.classList.add('visible');
-          errorContainer.innerHTML = `${value.detail}`;
-        });
+        // Получаем ответ сервера и записываем в документ
+        const data = await response.text();
+        document.open();
+        document.writeln(data);
+        document.close();
 
+        // Снимаем блокировку страницы при успешном завершении
         disablePageLock();
+      } catch (error) {
+        // Обработка ошибки: выводим в консоль и показываем пользователю
+        console.error('Ошибка при обработке:', error);
+        
+        // Формируем сообщение об ошибке
+        let errorMessage = 'Произошла ошибка при обработке запроса.';
+        if (error && error.detail) {
+          errorMessage = error.detail;
+        } else if (error && error.message) {
+          errorMessage = error.message;
+        }
+        
+        errorContainer.classList.add('visible');
+        errorContainer.innerHTML = errorMessage;
 
-        // Разблокируем кнопки
+        // Снимаем блокировку страницы
+        disablePageLock();
+      } finally {
+        // Выполняется ВСЕГДА: после success или catch
+        // Разблокируем кнопки отправки
         allSubmitButtons.forEach(btn => {
           btn.disabled = false;
           btn.style.opacity = '1';
           btn.style.cursor = 'pointer';
         });
 
+        // Скрываем индикатор загрузки
         if (loadingIndicator) {
           loadingIndicator.classList.remove('loading-visible');
         }
@@ -232,17 +314,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Установка обработчиков для всех областей загрузки
+  // ============================================================
+  // ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
+  // ============================================================
+  
+  // Настройка обработчиков клика для всех областей загрузки
   setupFileUpload('uploadArea1', 'image1', 'fileInfo1', 'remove1');
   setupFileUpload('uploadArea2', 'image2', 'fileInfo2', 'remove2');
   setupFileUpload('dbUploadArea', 'fileInput_for_db', 'fileInfoDb', 'removeDb');
 
-  // Также устанавливаем drag-and-drop обработчики
+  // Настройка drag-and-drop обработчиков
   setupDragAndDrop('uploadArea1', 'image1', 'fileInfo1', 'remove1');
   setupDragAndDrop('uploadArea2', 'image2', 'fileInfo2', 'remove2');
   setupDragAndDrop('dbUploadArea', 'fileInput_for_db', 'fileInfoDb', 'removeDb');
 
-  // Также устанавливаем обработчики для загрузки файлов
+  // Настройка отправки форм на сервер
   setupSendFilesOnServer(
     'double',
     'errorContainerDouble',
