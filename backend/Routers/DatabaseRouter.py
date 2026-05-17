@@ -1,8 +1,11 @@
-from typing import Tuple, Sequence, TypedDict, List
-
-import asyncio
+import os
+import hashlib
+from typing import TypedDict, List
 from datetime import datetime
 from pathlib import Path
+
+import torch
+import numpy as np
 
 from fastapi.responses import FileResponse, Response
 from fastapi import (
@@ -14,248 +17,231 @@ from fastapi import (
     status
 )
 
-from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Routers.Template import templates
-from Routers.MainRouter import model, device
+from Routers.MainRouter import model, device, extractor
 
-from Databases.Database import get_async_session, get_all_image_records
-
-from NNModels.ProcessingImage import get_val_transforms
-from NNModels.NeuralNetworkModel import predict_pair_async, get_image_bytes_by_path
+from Databases.Database import get_async_session, get_image_records_by_ids
+from VectorIndex.FAISSIndex import FAISSIndex
 
 
-# Dictionary structure for storing image similarity search results
-class FeatureDict(TypedDict):
-    rank: int          # Rank position in search results (1st, 2nd, etc.)
-    db_id: int         # Database record ID
-    db_filename: str   # Original filename in database
-    db_path: str       # File path in database
-    similarity: float  # Similarity score as percentage
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg"}
+
+COMPARE_THRESHOLD = 0.95
+
+INDEX_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../VectorIndex")
+
+faiss_index = FAISSIndex()
+if os.path.exists(os.path.join(INDEX_DIR, "faiss_index.bin")):
+    faiss_index.load(INDEX_DIR)
+else:
+    print("[WARN ] FAISS index not found. Search will be unavailable until index is built.")
 
 
-# Router for handling database-related operations (search, compare)
-database_router = APIRouter()
+class SearchResult(TypedDict):
+    rank: int
+    db_id: int
+    db_filename: str
+    similarity: float
 
 
-async def save_image(image: UploadFile) -> Tuple[str, str]:
-    """
-    Save uploaded image to the uploads directory and return file path with filename
-    """
+def sanitize_filename(filename: str) -> str:
+    """Remove path components from filename to prevent directory traversal."""
+    return Path(filename).name
+
+
+def get_file_md5(filepath: str) -> str:
+    """Compute MD5 hash of a file."""
+    h = hashlib.md5()
     try:
-        img_bytes: bytes = await image.read()
-        filename = f"{image.filename}"
-
-        # Directory where uploaded images are stored
-        UPLOAD_DIR: Path = Path(__file__).parent / Path("Templates/Static/Uploads")
-        UPLOAD_DIR.mkdir(exist_ok=True)
-
-        file_path: Path = UPLOAD_DIR / filename
-        # Write image bytes to file
-        with open(file_path, "wb") as f:
-            f.write(img_bytes)
-    except Exception as e:
-        raise Exception(e)
-    else:
-        return (str(file_path), filename)
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except Exception:
+        return "error"
 
 
-def get_url_for_image(
-    request: Request,
-    image_path: str,
-    static: bool=True
-) -> str:
+def validate_extension(filename: str) -> bool:
+    """Check if file has an allowed extension."""
+    return Path(filename).suffix.lower() in ALLOWED_EXTENSIONS
+
+
+async def save_image(image: UploadFile) -> tuple[str, str]:
     """
-    Generate accessible URL for images (static uploads or non-static database files)
+    Save uploaded image to the uploads directory.
+    Returns (filename, original_filename).
     """
-    # Static images are served via FastAPI's built-in static files mount
+    img_bytes = await image.read()
+    filename = sanitize_filename(image.filename or "uploaded_image")
+
+    UPLOAD_DIR = Path(__file__).parent / "Templates/Static/Uploads"
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+    file_path = UPLOAD_DIR / filename
+    with open(file_path, "wb") as f:
+        f.write(img_bytes)
+
+    return filename, filename
+
+
+def get_url_for_image(request: Request, image_path: str, static: bool = True) -> str:
+    """Generate URL for images (static uploads or database files)."""
     if static:
         return str(request.url_for("Static", path=f"Uploads/{image_path}"))
     else:
-        # Non-static files (e.g., database-stored images) use dedicated endpoint
-        return str(request.url_for('get_nonstatic_files', filename=image_path))
+        return str(request.url_for("get_nonstatic_files", filepath=image_path))
 
 
-async def compare_images(file_path1: str, file_path2: str) -> float:
-    """
-    Compare two images using neural network model and return similarity probability (0-1)
-    """
-    try:
-        img_bytes1: bytes | None = await get_image_bytes_by_path(file_path1)
-        img_bytes2: bytes | None = await get_image_bytes_by_path(file_path2)
-
-        if img_bytes1 is None or img_bytes2 is None:
-            raise Exception("One of image have zero bytes")
-
-        # Predict similarity using loaded model and validation transforms
-        prob = float(await predict_pair_async(
-            model=model,
-            img_bytes1=img_bytes1,
-            img_bytes2=img_bytes2,
-            base_tf=get_val_transforms(
-                target_size=(224, 224)
-            ),
-            device=device
-        ))
-    except Exception as e:
-        print(f"[ERROR] While compare images: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Ошибка сравнения одного из изображений"
-        )
-    else:
-        return prob
+# ============================================================
+# -------------------- GET ROUTERS ----------------------------
+# ============================================================
+database_router = APIRouter()
 
 
-async def compare_single_record(
-    user_img_path: str,
-    record: Row[Tuple[int, str, str]]
-) -> Tuple[int, str, str, float] | None:
-    """
-    Compare user uploaded image with a single database record and return similarity result
-    Returns tuple of (db_id, db_path, db_filename, similarity_prob) or None if comparison fails
-    """
-    id_, file_name, file_path = record
-    # Compare user image with database image and get similarity probability
-    prob: float = await compare_images(user_img_path, file_path)
-    if prob is not None:
-        return (id_, file_path, file_name, prob)
-    return None
-
-
-async def find_top_similar(
-    query_img_path: str,
-    db_session: AsyncSession,
-    top_k: int=5,
-    parallel: bool=True
-) -> List[Tuple[int, str, str, float]]:
-    """
-    Find top-k similar images in database by comparing query image with all database records
-    Uses neural network model to compute similarity scores for each comparison
-    If parallel=True, uses asyncio.gather for concurrent comparisons (faster)
-    """
-    print("[INFO ] Get all image records from database")
-    # Fetch all image records from database: each record is (id, filename, filepath)
-    records: Sequence[Row[Tuple[int, str, str]]] = await get_all_image_records(db_session)
-    if not records:
-        print("[WARN ] No images found in database")
-        return []
-
-    # Compare query image with all database records
-    if parallel:
-        # Parallel mode: create tasks for all comparisons and run them concurrently
-        print("[INFO ] Start parallel image search")
-        tasks = [compare_single_record(query_img_path, record) for record in records]
-        results = await asyncio.gather(*tasks)
-        # Filter out None results (failed comparisons)
-        results = [r for r in results if r is not None]
-    else:
-        # Sequential mode: compare images one by one
-        print("[INFO ] Start a sequential image search")
-        results = []
-        for record in records:
-            res = await compare_single_record(query_img_path, record)
-            if res:
-                results.append(res)
-
-    # Sort results by similarity probability in descending order (highest first)
-    results.sort(key=lambda x: x[3], reverse=True)
-    return results[:top_k]
-
-
-# /////////////////////////////////////////////////////
-# /////////////////// GET routers /////////////////////
-# /////////////////////////////////////////////////////
 @database_router.get(
-    path="/nonStaticFiles/{filepath}",
-    summary="For sending non static files"
+    path="/nonStaticFiles/{filepath:path}",
+    summary="Serve non-static files from database storage"
 )
 async def get_nonstatic_files(filepath: str) -> FileResponse:
     """
-    Serve non-static files (e.g., database-stored images) not in the static directory
-    Used to retrieve files that are not part of the default static assets
+    Serve files from database storage.
+    Path traversal is blocked by validating the resolved path.
     """
-    return FileResponse(filepath)
+    resolved = os.path.realpath(filepath)
+
+    if not os.path.isfile(resolved):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found"
+        )
+
+    return FileResponse(resolved)
 
 
-# /////////////////////////////////////////////////////
-# /////////////////// POST routers ////////////////////
-# /////////////////////////////////////////////////////
+# ============================================================
+# -------------------- POST ROUTERS ---------------------------
+# ============================================================
 @database_router.post(
     path="/search/",
-    summary="Search page"
+    summary="Search for similar images using FAISS vector index"
 )
 async def search_files(
     request: Request,
     user_image: UploadFile,
-    db_session: AsyncSession=Depends(get_async_session)
+    db_session: AsyncSession = Depends(get_async_session)
 ) -> Response:
     """
-    Handle image search in database - find top similar images to uploaded query image
+    Search for similar images in database using FAISS vector search.
+    Extracts embedding from uploaded image and finds top-k most similar.
     """
-    # Validate that image was properly uploaded
     if user_image.filename is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Не удалось загрузить изображение для поиска в базе данных"
         )
-    if not user_image.filename.endswith(('.dcm', '.png', '.jpg', '.jpeg')):
-        detail="Ошибка загрузки!<br>" \
-            + "Разрешены файлы следующих форматов:" \
-            + ".png, .jpeg (.jpg)"
+
+    if not validate_extension(user_image.filename):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=detail
+            detail="Ошибка загрузки!<br>"
+                   "Разрешены файлы следующих форматов: .png, .jpeg (.jpg)"
         )
 
-    user_file_path: str | None = None
-    user_filename = "uploaded_image"
-    print("[INFO ] Saving image for search in database")
-    try:
-        # Save uploaded image to uploads directory
-        user_file_path, user_filename = await save_image(user_image)
-    except Exception as e:
-        print(f"[ERROR] Saving uploaded image for display: {e}")
-
-    try:
-        print("[INFO ] Start searching in database")
-        if user_file_path is not None:
-            # Find top 5 similar images in database using parallel comparison
-            top_results = await find_top_similar(
-                query_img_path=user_file_path,
-                db_session=db_session,
-                top_k=5,
-                parallel=True
-            )
-        else:
-            raise Exception(f"[ERROR] Saving uploaded image for display")
-    except Exception as e:
-        print(f"[ERROR] Search process failed: {str(e)}")
+    if not faiss_index.is_built():
         raise HTTPException(
-            status_code=500,
-            detail=f"Ошибка поиска в базе данных"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Векторный индекс не построен. Обратитесь к администратору."
         )
 
-    # Build feature list for template rendering with ranked results
-    features: List[FeatureDict] = []
-    for idx, (db_id, db_path, db_filename, similarity_prob) in enumerate(top_results):
-        features.append({
-            "rank": idx + 1,
-            "db_id": db_id,
-            "db_filename": db_filename,
-            "db_path": db_path,  # Store path for potential display
-            "similarity": round(similarity_prob * 100, 2)  # Convert to percentage
-        })
-    best_similarity: float = round(top_results[0][3] * 100, 2) if top_results else 0.0
-    print(top_results[0])
+    user_filename = "uploaded_image"
+    try:
+        user_filename, _ = await save_image(user_image)
+    except Exception as e:
+        print(f"[ERROR] Saving uploaded image: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка сохранения изображения"
+        )
+
+    user_file_path = str(Path(__file__).parent / "Templates/Static/Uploads" / user_filename)
+
+    try:
+        print("[INFO ] Extracting embedding for search...")
+        query_embedding = extractor.extract_from_path(user_file_path)
+    except Exception as e:
+        print(f"[ERROR] Embedding extraction failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка обработки изображения"
+        )
+
+    try:
+        print("[INFO ] Searching FAISS index...")
+        top_results = faiss_index.search(query_embedding, k=5)
+    except Exception as e:
+        print(f"[ERROR] FAISS search failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка поиска в базе данных"
+        )
+
+    if not top_results:
+        print("[WARN ] No similar images found")
+        features: List[SearchResult] = []
+        best_similarity = 0.0
+        top_result_path = ""
+    else:
+        db_ids = [r[0] for r in top_results]
+        records = await get_image_records_by_ids(db_session, db_ids)
+
+        features = []
+        for rank, (db_id, similarity_score) in enumerate(top_results, start=1):
+            filename, storage_path = records.get(db_id, ("unknown", ""))
+            features.append({
+                "rank": rank,
+                "db_id": db_id,
+                "db_filename": filename,
+                "db_path": storage_path,
+                "similarity": round(similarity_score * 100, 2)
+            })
+
+        best_similarity = round(top_results[0][1] * 100, 2)
+        top_db_id = top_results[0][0]
+        _, top_result_path = records.get(top_db_id, ("", ""))
+        print(f"[INFO ] Best match: db_id={top_db_id}, similarity={best_similarity}%")
+
+        # ============================================================
+        # DEBUG: File comparison diagnostics
+        # ============================================================
+        print("=" * 60)
+        print("[DEBUG] Search diagnostics:")
+        print(f"  Query file:    {user_file_path}")
+        print(f"  Query MD5:     {get_file_md5(user_file_path)}")
+        print(f"  Query size:    {os.path.getsize(user_file_path)} bytes")
+        print(f"  Best match:    {top_result_path}")
+        print(f"  Best MD5:      {get_file_md5(top_result_path)}")
+        if os.path.exists(top_result_path):
+            print(f"  Best size:     {os.path.getsize(top_result_path)} bytes")
+        else:
+            print(f"  Best size:     FILE NOT FOUND")
+        print(f"  Files equal:   {get_file_md5(user_file_path) == get_file_md5(top_result_path)}")
+        print(f"  Cosine sim:    {top_results[0][1]:.6f}")
+
+        # Print all top-5 results for comparison
+        for rank, (db_id, sim) in enumerate(top_results, start=1):
+            fname, fpath = records.get(db_id, ("?", "?"))
+            print(f"  [{rank}] db_id={db_id}, sim={sim:.4f}, file={fname}, path={fpath}")
+        print("=" * 60)
+
     return templates.TemplateResponse(
         name="/RU/resultRU.html",
         context={
             "type": "search",
             "request": request,
             "img1_url": get_url_for_image(request, user_filename),
-            "img2_url": get_url_for_image(request, "25.png"),  # TODO: use actual top result
+            "img2_url": get_url_for_image(request, top_result_path, static=False) if top_result_path else "",
             "similarity_score": best_similarity,
             "analysis_date": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "features": features,
@@ -265,7 +251,7 @@ async def search_files(
 
 @database_router.post(
     path="/compare/",
-    summary="Compare page"
+    summary="Compare two uploaded images"
 )
 async def compare_files(
     request: Request,
@@ -273,40 +259,46 @@ async def compare_files(
     user_image1: UploadFile
 ) -> Response:
     """
-    Handle direct comparison between two uploaded images
+    Compare two uploaded images directly using the siamese model.
     """
-    # Validate both images are properly uploaded
     if user_image.filename is None or user_image1.filename is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Не удалось загрузить изображения для сравнения"
         )
-    if not user_image.filename.endswith(('.dcm', '.png', '.jpg', '.jpeg')) \
-    and not user_image1.filename.endswith(('.dcm', '.png', '.jpg', '.jpeg')):
-        detail="Ошибка загрузки!<br>" \
-            + "Разрешены файлы следующих форматов:" \
-            + ".png, .jpeg (.jpg)"
+
+    if not validate_extension(user_image.filename) or not validate_extension(user_image1.filename):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=detail
+            detail="Ошибка загрузки!<br>"
+                   "Разрешены файлы следующих форматов: .png, .jpeg (.jpg)"
         )
 
     try:
-        file_path1: str = ""
-        filename1: str = ""
-        file_path2: str = ""
-        filename2: str = ""
+        filename1, _ = await save_image(user_image)
+        filename2, _ = await save_image(user_image1)
 
-        # Save both uploaded images to uploads directory
-        file_path1, filename1 = await save_image(user_image)
-        file_path2, filename2 = await save_image(user_image1)
+        file_path1 = str(Path(__file__).parent / "Templates/Static/Uploads" / filename1)
+        file_path2 = str(Path(__file__).parent / "Templates/Static/Uploads" / filename2)
 
-        # Compare the two images using neural network model
-        prob: float = await compare_images(file_path1, file_path2)
+        emb1 = extractor.extract_from_path(file_path1)
+        emb2 = extractor.extract_from_path(file_path2)
+
+        emb1_tensor = torch.from_numpy(emb1).unsqueeze(0).to(device)
+        emb2_tensor = torch.from_numpy(emb2).unsqueeze(0).to(device)
+
+        with torch.no_grad():
+            logits = model.classify_pair(emb1_tensor, emb2_tensor)
+            prob = float(torch.sigmoid(logits).item())
+
+        is_same = prob >= COMPARE_THRESHOLD
+        verdict = "Один человек" if is_same else "Разные люди"
+
     except Exception as e:
+        print(f"[ERROR] Comparison failed: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Ошибка сравнения"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка сравнения изображений"
         )
 
     return templates.TemplateResponse(
@@ -316,8 +308,9 @@ async def compare_files(
             "request": request,
             "img1_url": get_url_for_image(request, filename1),
             "img2_url": get_url_for_image(request, filename2),
-            "similarity_score": round(prob * 100, 2),  # Convert to percentage
+            "is_same": is_same,
+            "verdict": verdict,
             "analysis_date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "features": [],  # No feature list for direct comparison
+            "features": [],
         }
     )

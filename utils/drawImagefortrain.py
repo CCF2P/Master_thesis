@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from preprocessing_image import get_train_transforms
+from ForNNTrain.preprocessing_image import get_train_transforms
 
 # ===== ПАРАМЕТРЫ =====
 IMG_PATH = "E:\\Diploma_ISU\\Datasets\\OPTG1\\test\\1(27).jpg"   # путь к картинке

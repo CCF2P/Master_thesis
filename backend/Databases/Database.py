@@ -26,7 +26,7 @@ if SQLALCHEMY_DATABASE_URL is None:
 engine: AsyncEngine = create_async_engine(
     SQLALCHEMY_DATABASE_URL, # type: ignore
     echo=True,
-    pool_pre_ping=True, # Check for successfull connection
+    pool_pre_ping=True,
     pool_size=20,
     max_overflow=30,
     pool_timeout=30,
@@ -55,7 +55,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_all_image_records(db_session: AsyncSession) -> Sequence[Row[Tuple[int, str, str]]]:
-    """Возвращает список кортежей (id, storage_path, filename) из таблицы images."""
+    """Возвращает список кортежей (id, filename, storage_path) из таблицы images."""
     query: Select[Tuple[int, str, str]] = select(
         ImagesTable.id,
         ImagesTable.filename,
@@ -63,3 +63,26 @@ async def get_all_image_records(db_session: AsyncSession) -> Sequence[Row[Tuple[
     )
     result: Result[Tuple[int, str, str]] = await db_session.execute(query)
     return result.fetchall()
+
+
+async def get_image_records_by_ids(
+    db_session: AsyncSession,
+    ids: list[int]
+) -> dict[int, tuple[str, str]]:
+    """
+    Возвращает dict {id: (filename, storage_path)} для указанных ID.
+    Используется для получения метаданных изображений после FAISS поиска.
+    """
+    if not ids:
+        return {}
+
+    query = select(
+        ImagesTable.id,
+        ImagesTable.filename,
+        ImagesTable.storage_path
+    ).where(ImagesTable.id.in_(ids))
+
+    result: Result[Tuple[int, str, str]] = await db_session.execute(query)
+    records = result.fetchall()
+
+    return {row[0]: (row[1], row[2]) for row in records}

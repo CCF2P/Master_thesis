@@ -51,5 +51,6 @@ if __name__ == "__main__":
         app="main:app",
         host=HOST,
         port=int(PORT),
-        http="auto"
+        http="auto",
+        reload=True
     )

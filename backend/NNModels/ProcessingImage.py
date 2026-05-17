@@ -14,15 +14,13 @@ from albumentations import (
 
 
 # ============================================================
-# ------------------- TRANSFORMS -----------------------------
+# -------------------- TRANSFORMS -----------------------------
 # ============================================================
-def get_val_transforms(target_size) -> Compose:
+def get_val_transforms(target_size: tuple[int, int]) -> Compose:
     """
-    Here are the given values of mean and standard deviation for ImageNet.\n
-    mean = (0.485, 0.456, 0.406)\n
-    std = (0.229, 0.224, 0.225)
-
-    :param target_size: It is a tuple consisting of two numbers: width and height.
+    Validation transforms matching training configuration.
+    mean = (0.4576, 0.4576, 0.4576)
+    std = (0.1942, 0.1942, 0.1942)
     """
     return Compose([
         LongestMaxSize(target_size[0]),
@@ -32,8 +30,8 @@ def get_val_transforms(target_size) -> Compose:
             border_mode=cv2.BORDER_CONSTANT
         ),
         Normalize(
-            mean=(0.485, 0.456, 0.406),
-            std=(0.229, 0.224, 0.225)
+            mean=(0.4576, 0.4576, 0.4576),
+            std=(0.1942, 0.1942, 0.1942)
         ),
         ToTensorV2()
     ])
@@ -41,21 +39,18 @@ def get_val_transforms(target_size) -> Compose:
 
 def get_val_aug_transforms() -> Compose:
     """
-    Light augmentations ONLY for positive pairs during validation.\n
-    IMPORTANT: Without Resize and Normalize
-    (they are used in get_val_transforms).
-    To avoid double normalization!
+    Light augmentations for positive pairs during validation.
+    Without Resize and Normalize to avoid double normalization.
     """
     return Compose([
         ColorJitter(
-            brightness=0.2,
-            contrast=0.2,
+            brightness=0.1,
+            contrast=0.1,
             p=0.5
         ),
         Rotate(limit=5, p=0.3),
         GaussNoise(
-            std_range=(0.8, 0.99),
+            std_range=(0.1, 0.3),
             p=0.2
         )
     ])
-

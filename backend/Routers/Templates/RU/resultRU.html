@@ -20,14 +20,22 @@
         <!-- Панель изображений -->
         <div class="images-panel">
           <div class="image-container">
-            <div class="image-header">Исходное изображение 1</div>
+            {% if type == "search" %}
+            <div class="image-header">Исходное изображение</div>
+            {% else %}
+            <div class="image-header">Изображение 1</div>
+            {% endif %}
             <div class="image-preview">
               <img src="{{ img1_url }}" alt="Не удалось загрузить изображение">
             </div>
           </div>
 
           <div class="image-container">
-            <div class="image-header">Исходное изображение 2</div>
+            {% if type == "search" %}
+            <div class="image-header">Похожий снимок из базы данных</div>
+            {% else %}
+            <div class="image-header">Изображение 2</div>
+            {% endif %}
             <div class="image-preview">
               <img src="{{ img2_url }}" alt="Не удалось загрузить изображение">
             </div>
@@ -38,12 +46,27 @@
         <div class="results-section">
           <h2>Сводка сравнения</h2>
 
+          {% if type == "compare" and verdict is defined %}
           <div class="result-item">
-            <div class="result-label">Оценка сходства</div>
+            <div class="result-label">Заключение</div>
+            <div>
+              {% if is_same %}
+              <span class="similarity-badge" style="background-color: #28a745;">{{ verdict }}</span>
+              {% else %}
+              <span class="similarity-badge" style="background-color: #dc3545;">{{ verdict }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if type == "search" %}
+          <div class="result-item">
+            <div class="result-label">Сходство с лучшим совпадением</div>
             <div>
               <span class="similarity-badge">{{ similarity_score }}%</span>
             </div>
           </div>
+          {% endif %}
 
           <div class="result-item">
             <div class="result-label">Дата анализа</div>

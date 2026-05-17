@@ -1,3 +1,5 @@
+import os
+
 from fastapi.responses import RedirectResponse
 from fastapi import (
     APIRouter,
@@ -5,38 +7,48 @@ from fastapi import (
 )
 
 from Routers.Template import templates
-from NNModels.NeuralNetworkModel import ModelLoader
+from NNModels.NeuralNetworkModel import ModelLoader, SiameseMetricModel
+from NNModels.FeatureExtractor import FeatureExtractor
 
 
-# Main router for handling web page routes
 main_router = APIRouter()
 
-# Initialize neural network model loader
+CHECKPOINT_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "../NNModels/PretrainedModels/final_model.pth"
+)
+BACKBONE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "../../ForNNTrain/backbones/smiMIM_backbone_convnext_tiny_batch_24_final_correct.pth"
+)
+
 model_loader = ModelLoader()
-# Load pretrained model from checkpoint with specified backbone and device
 model_loader.load(
-    checkpoint_path="NNModels/PretrainedModels/final_model.pth",
+    checkpoint_path=os.path.normpath(CHECKPOINT_PATH),
     backbone_name="convnext_tiny",
+    embedding_dim=512,
+    backbone_path=os.path.normpath(BACKBONE_PATH) if os.path.exists(os.path.normpath(BACKBONE_PATH)) else None,
     device="cuda"
 )
-# Get loaded model instance for inference
-model = model_loader.get_model()
-# Get device (CPU/CUDA) where model is loaded
+
+model: SiameseMetricModel = model_loader.get_model()
 device = model_loader.get_device()
 
+extractor = FeatureExtractor()
+extractor.initialize(model=model, device=device, target_size=(224, 224))
 
-# /////////////////////////////////////////////////////
-# /////////////////// Get routers /////////////////////
-# /////////////////////////////////////////////////////
+
+# ============================================================
+# -------------------- PAGE ROUTERS ---------------------------
+# ============================================================
 @main_router.get(path="/", summary="Home page")
 async def get_index_html(request: Request):
-    """Render main/home page with Russian language template"""
     try:
         return templates.TemplateResponse(
             name="/RU/indexRU.html",
-            context={'request': request}
+            context={"request": request}
         )
-    except:
+    except Exception:
         return templates.TemplateResponse(
             name="/RU/errorRU.html",
             context={
@@ -48,33 +60,19 @@ async def get_index_html(request: Request):
 
 
 @main_router.get(path="/upload/", summary="Upload page")
-async def get_uploadRU_html(request: Request):
-    """Render upload page where users can upload images for processing"""
-    try:
-        return templates.TemplateResponse(
-            name="/RU/uploadRU.html",
-            context={"request": request}
-        )
-    except:
-        return templates.TemplateResponse(
-            name="/RU/errorRU.html",
-            context={
-                "request": request,
-                "error_message": "Страница не найдена."
-            },
-            status_code=500
-        )
+async def get_upload_html(request: Request):
+    """Redirect to compare page which contains upload functionality."""
+    return RedirectResponse(url="/compare/")
 
 
 @main_router.get(path="/compare/", summary="Compare page")
-async def get_compareRU_html(request: Request):
-    """Render compare page for comparing different images or results"""
+async def get_compare_html(request: Request):
     try:
         return templates.TemplateResponse(
             name="/RU/compareRU.html",
             context={"request": request}
         )
-    except:
+    except Exception:
         return templates.TemplateResponse(
             name="/RU/errorRU.html",
             context={
@@ -87,8 +85,4 @@ async def get_compareRU_html(request: Request):
 
 @main_router.get(path="/result/", summary="Result page")
 async def get_result_html(request: Request):
-    """Redirect result page to upload page (result page is accessed after upload processing)"""
-    return RedirectResponse(url="/upload/")
-
-
-# ================== Features extraction pages ========================
+    return RedirectResponse(url="/compare/")

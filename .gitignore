@@ -9,3 +9,7 @@ backend/NNModels/PretrainedModels/*.pth
 backend/NNModels/PretrainedModels/*.keras
 backend/NNModels/PretrainedModels/*.h5
 backend/Routers/Templates/Static/Uploads/
+docs/
+backend/NNModels/PretrainedModels/backbones/*.pth
+backend/VectorIndex/*.bin
+backend — копия/
